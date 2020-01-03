@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="costInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LinKernAlgorithm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MCFormulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MTZFormulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QAPFormulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SPFormulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="STEFormulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SubtourElimCuts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TSP_instance_n_5_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_10_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_20_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_25_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_40_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_48_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_70_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_76_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_100_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_130_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_131_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_150_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TSP_instance_n_202_s_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="costInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LinKernAlgorithm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MCFormulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MTZFormulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QAPFormulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SPFormulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="STEFormulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SubtourElimCuts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
