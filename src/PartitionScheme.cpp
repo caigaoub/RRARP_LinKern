@@ -77,7 +77,7 @@ void PartitionScheme::build(DataHandler& dataset, int nb_dstzn, int type_trajc) 
 		cerr << "ERROR: No such trajectory type(PartitionScheme.cpp::line 79)" << endl;
 		exit(0);
 	}
-	get_risk_outerTrajc(); // **Important**:'_min_risk_tars' is generated in this function.
+	// get_risk_outerTrajc(); // **Important**:'_min_risk_tars' is generated in this function.
 }
 
 /**
