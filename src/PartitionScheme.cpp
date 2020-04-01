@@ -306,7 +306,8 @@ tuple<bool, double,double> PartitionScheme::get_optimal_rotatoryInnerTrajc(doubl
 	double nbp_onRadius = 100.0;
 	double unit_rad = _dataset->_radii[tar]/nbp_onRadius;
 	double tmpRad = 0.0, tmpReward = 0.0, tmpRisk = 0.0;
-	double optRad = 0.0, optReward = 0.0, optRisk = INF;
+	double  optReward = 0.0, optRisk = INF;
+	// double optRad = 0.0;
 	bool admissible = false;
 	for(int i = 1; i <= nbp_onRadius; i++){
 		tmpRad = i * unit_rad;
@@ -319,7 +320,7 @@ tuple<bool, double,double> PartitionScheme::get_optimal_rotatoryInnerTrajc(doubl
 			if(tmpRisk < optRisk){
 				admissible = true;
 				optRisk = tmpRisk;
-				optRad = tmpRad;
+				// optRad = tmpRad;
 				optReward = tmpReward;
 			}
 		}
@@ -332,7 +333,7 @@ tuple<bool, double,double> PartitionScheme::get_optimal_rotatoryInnerTrajc(doubl
 			if(tmpRisk < optRisk){
 				admissible = true;
 				optRisk = tmpRisk;
-				optRad = tmpRad;
+				// optRad = tmpRad;
 				optReward = tmpReward;
 			}
 		}
@@ -347,7 +348,7 @@ tuple<bool, double,double> PartitionScheme::get_optEucl_rotatoryInnerTrajc(doubl
 	double unit_rad = _dataset->_radii[tar]/nbp_onRadius;
 	double tmpRad = 0.0, tmpReward = 0.0, tmpRisk = 0.0;
 	double optReward = 0.0, optRisk = INF;
-	double optRad = 0.0;
+	// double optRad = 0.0;
 	bool admissible = false;
 	for(int i = 1; i <= nbp_onRadius; i++){
 		tmpRad = i * unit_rad;
@@ -359,7 +360,7 @@ tuple<bool, double,double> PartitionScheme::get_optEucl_rotatoryInnerTrajc(doubl
 			if(tmpRisk < optRisk){
 				admissible = true;
 				optRisk = tmpRisk;
-				optRad = tmpRad;
+				// optRad = tmpRad;
 				optReward = tmpReward;
 			}
 		}
@@ -372,7 +373,7 @@ tuple<bool, double,double> PartitionScheme::get_optEucl_rotatoryInnerTrajc(doubl
 			if(tmpRisk < optRisk){
 				admissible = true;
 				optRisk = tmpRisk;
-				optRad = tmpRad;
+				// optRad = tmpRad;
 				optReward = tmpReward;
 			}
 		}

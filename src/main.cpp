@@ -4,8 +4,9 @@
 #include <ctime>
 #include <chrono>
 #include <boost/lexical_cast.hpp>
-
 #include <sys/stat.h>
+
+
 using namespace std;
 
 int main(int argc, const char* argv[]) {
@@ -31,7 +32,7 @@ int main(int argc, const char* argv[]) {
 	string instance_wPath = cur_dir + instance_name_only;
 	DataHandler dataset_;
 	dataset_.parse(instance_wPath);
-	// dataset_.print();
+	dataset_.print();
 	PartitionScheme network_;
 	network_.build(dataset_, nb_dstzn, type_trajc);
 

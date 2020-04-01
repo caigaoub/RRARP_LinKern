@@ -5,6 +5,25 @@
 #include "CostInfo.h"
 using namespace std;
 
+struct coord
+{
+	double x;
+	double y;
+};
+
+// --
+struct VERTEX {
+	int tarID;
+	int subKey;
+	int matKey;
+};
+
+struct INDEX {
+	int tarID; // target
+	int subKey; // discritized point
+};
+
+
 struct LKEdgeX {
 	double dist; // distance
 	int spKeyA; 

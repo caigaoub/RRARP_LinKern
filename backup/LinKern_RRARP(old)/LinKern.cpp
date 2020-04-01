@@ -92,7 +92,6 @@ double LinKern::LKSearch(vector<VERTEX> & spTour, double& curSPLens) {
 				curMinLength = curSPLens - bestGain;
 				curSPLens = curMinLength;
 	//			double tm = getTourLens(spTour);
-
 				break;
 			}
 			vtx++;
