@@ -97,7 +97,7 @@ def plot_instance(instancefile):
                     obpY.append(obp_y)
                     colors.append(float(list2_[2]))
             area = [1]*len(obpX)
-            plt.scatter(obpX, obpY, s=area, c=colors,cmap='hsv', alpha=0.5)            
+            plt.scatter(obpX[1:20], obpY[1:20], s=area[1:20], c=colors[1:20],cmap='hsv', alpha=0.5)            
             tar_idx += 1
             line_ = file_.readline()
 
