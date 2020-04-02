@@ -49,7 +49,7 @@ def generate_instance(nb_targets, radius, densitycoef):
     # print(tar_locs)
     rewards_ratio = []
     for i in range(0, nb_targets):
-        rewards_ratio.append(round(random.uniform(0.7, 0.9)*precision)/precision)
+        rewards_ratio.append(round(random.uniform(0.5, 0.8)*precision)/precision)
     return tar_locs, rewards_ratio, width, height
 
 
@@ -84,12 +84,27 @@ def write_instance(tar_locs, rewards_ratio, filename):
     # print(rewards_ratio)
     for i in range(0,len(rewards_ratio)-1):
         file.write(str(rewards_ratio[i]) + '\t')
-    file.write(str(rewards_ratio[-1]))
+    file.write(str(rewards_ratio[-1]) + '\n')
+    
+    precision = 1000.0
+    for i in range(0, len(tar_locs)-2):
+        # file.write('T' + str(i+1) + '\t')
+        for j in range(0, 99):
+            r = round(np.random.uniform(0,1)*1000.0)/precision
+            angle = round(np.random.uniform(0,2.0*np.pi)*1000.0)/precision
+            rewp = round(np.random.uniform(0,1)*1000.0)/precision
+            file.write(str(math.sqrt(r)) + ':' + str(angle) + ':' + str(rewp) + '\t')
+        r = round(np.random.uniform(0,1)*1000.0)/precision
+        angle = round(np.random.uniform(0,2.0*np.pi)*1000.0)/precision
+        rewp = round(np.random.uniform(0,1)*1000.0)/precision
+        file.write(str(math.sqrt(r)) + ':' + str(angle) + ':' + str(rewp) + '\n')
+    
     file.close()
+
 if __name__ == "__main__":
     ''' basic setting '''
     radius = 1.0
-    size_range = [6, 30]
+    size_range = [6, 200]
     
     ''' instance generation '''
     # densitycoefs = [4, 2, 1.5]

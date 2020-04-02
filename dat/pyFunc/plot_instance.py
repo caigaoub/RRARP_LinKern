@@ -37,7 +37,7 @@ def plot_instance(instancefile):
     maxy = max(maxy, departure[1]+3)
     circle = pch.Circle((departure[0], departure[1]), radius=0.1, edgecolor='r', facecolor='r', alpha=1)
     ax.add_artist(circle)
-    ax.annotate("("+str(0)+": " + str(departure[0])+","+str(departure[1])+")", xy=(departure[0], departure[1]), xytext=(departure[0]+0.3, departure[1]+0.3))
+    # ax.annotate("("+str(0)+": " + str(departure[0])+","+str(departure[1])+")", xy=(departure[0], departure[1]), xytext=(departure[0]+0.3, departure[1]+0.3))
 
     #arrival
     line_ = file_.readline()
@@ -50,15 +50,17 @@ def plot_instance(instancefile):
     maxy = max(maxy, arrival[1]+3)
     circle = pch.Circle((arrival[0], arrival[1]), radius=0.1, edgecolor='r', facecolor='r', alpha=1)
     ax.add_artist(circle)
-    ax.annotate("("+str(nb_tars_+1)+": "+str(arrival[0])+","+str(arrival[1])+")", xy=(arrival[0], arrival[1]), xytext=(arrival[0]+0.3, arrival[1]+0.3))
+    # ax.annotate("("+str(nb_tars_+1)+": "+str(arrival[0])+","+str(arrival[1])+")", xy=(arrival[0], arrival[1]), xytext=(arrival[0]+0.3, arrival[1]+0.3))
 
     #target circles
     itr = 1
     line_ = file_.readline()
+    tar_locs = []
     while itr <= nb_tars_:
         list_ = re.split("\t|\n", line_)
         tar_loc_x = float(list_[0])
         tar_loc_y = float(list_[1])
+        tar_locs.append([tar_loc_x, tar_loc_y])
         tar_rad = float(list_[2])
         # print(tar_loc_x,tar_loc_y,tar_rad)
         minx = min(minx, tar_loc_x-tar_rad)
@@ -69,15 +71,45 @@ def plot_instance(instancefile):
         ax.add_artist(circle)
         circle = plt.Circle((tar_loc_x, tar_loc_y), radius=0.01, edgecolor='r',facecolor='r',alpha=0.8)
         ax.add_artist(circle)
-        ax.annotate("("+str(itr)+": "+str(tar_loc_x)+","+str(tar_loc_y)+")", xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.3, tar_loc_y+0.3))
+        # ax.annotate("("+str(itr)+": "+str(tar_loc_x)+","+str(tar_loc_y)+")", xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.3, tar_loc_y+0.3))
         itr += 1   
         line_ = file_.readline()
+
+    ''' print observation point '''
+    line_ = file_.readline()
+
+    if True:
+        tar_idx = 1
+        while tar_idx <= nb_tars_:
+            list_ = re.split("\t|\n", line_)
+            obpX = []
+            obpY = []
+            colors = []
+            # print(list_)
+            for e in list_:
+                if e != '':
+                    list2_ = re.split(":", e)
+                    r = float(list2_[0])
+                    angle = float(list2_[1])
+                    obp_x = r * math.cos(angle) + tar_locs[tar_idx-1][0]
+                    obp_y = r * math.sin(angle) + tar_locs[tar_idx-1][1]
+                    obpX.append(obp_x)
+                    obpY.append(obp_y)
+                    colors.append(float(list2_[2]))
+            area = [1]*len(obpX)
+            plt.scatter(obpX, obpY, s=area, c=colors,cmap='hsv', alpha=0.5)            
+            tar_idx += 1
+            line_ = file_.readline()
+
     file_.close()
     ax.set(xlim=(minx,maxx), ylim=(miny,maxy))
     ax.set_aspect('equal', adjustable='box')
     # plt.xticks(np.arange(minx,maxx,1))
     # plt.yticks(np.arange(miny,maxy,1))
     plt.grid(alpha=.5)
+
+
+
     plt.show()
 
 ################################################################################################
