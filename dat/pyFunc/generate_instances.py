@@ -91,29 +91,21 @@ def write_instance(tar_locs, rewards_ratio, filename):
     for i in range(0, len(tar_locs)-2):
         # file.write('T' + str(i+1) + '\t')
         for j in range(0, 49):
-            r = round(np.random.uniform(0.1,0.9)*precision)/precision
+            r = round(math.sqrt(np.random.uniform(0.1,0.9))*precision)/precision
             angle = round(np.random.uniform(0,2.0*np.pi)*precision)/precision
             rewp = round(np.random.uniform(0.1,0.2)*precision)/precision
-            file.write(str(math.sqrt(r)) + ':' + str(angle) + ':' + str(rewp) + '\t')
-        r = round(np.random.uniform(0,1)*precision)/precision
+            file.write(str(r) + ':' + str(angle) + ':' + str(rewp) + '\t')
+        r = round(math.sqrt(np.random.uniform(0,1))*precision)/precision
         angle = round(np.random.uniform(0,2.0*np.pi)*precision)/precision
         rewp = round(np.random.uniform(0.1,0.2)*precision)/precision
-        file.write(str(math.sqrt(r)) + ':' + str(angle) + ':' + str(rewp) + '\n')
+        file.write(str(r) + ':' + str(angle) + ':' + str(rewp) + '\n')
     
     file.close()
 
 if __name__ == "__main__":
     ''' basic setting '''
     radius = 1.0
-    size_range = [6, 200]
-    
-    ''' instance generation '''
-    # densitycoefs = [4, 2, 1.5]
-    # for nb_targets in np.arange(size_range[0],size_range[1]+1):
-    # tar_locs, rewards_ratio, width, height = generate_instance(16, radius, 0.3)
-    # plot_instance(tar_locs, width, height)
-    # write_instance(tar_locs, rewards_ratio, '../n_16_m_1.dat')
-   # path = '/home/cai/Dropbox/Box_Research/Github/RRARP_BD/BendersDecomp/dat/'
+    size_range = [6, 210]
     path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/'
     for nb_targets in range(size_range[0], size_range[1]+1):
         densitycoef = 5
