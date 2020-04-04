@@ -327,10 +327,24 @@ def plot_target_area(center, obp_x, obp_y, obp_reward, entryP, exitP, path):
     plt.show()
 
 def read_config(config):
-    
+    file_ = open(config, 'r')
+    line_ = file_.readline()
+    return line_
 
 if __name__ == "__main__":
-    instancefile = argv[1]
+    # ccr 
+    configfile = argv[1]
+    position = argv[2]
+    path = ''
+    if int(position) == 1:
+        path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/'
+    else:
+        path = '/projects/academic/josewalt/caigao/RRARP_LinKern/'
+    instancefile = path + 'dat/' + read_config(configfile)
+
+    # instancefile = argv[1]
+
+
     departure, arrival, tar_locs, tar_rews, OBPX, OBPY, OBPREW = read_instance(instancefile)
     # print(departure, arrival, tar_locs, tar_rews, OBPX, OBPY)
 
@@ -351,11 +365,9 @@ if __name__ == "__main__":
 
     # print(riskmatx[0])
 
-    path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerPaths/'
-    path = '/projects/academic/josewalt/caigao/RRARP_LinKern/dat/InnerPaths/'
-    print(type(instancefile))
+    # print(type(instancefile))
     instancename = re.split(".dat", re.split("/", instancefile)[-1])[0]
-    file = open(path+instancename+'.path', "w")
+    file = open(path + 'dat/InnerPaths/' + instancename+'.path', "w")
     file.write('target' + '\t' + 'entry' + '\t' + 'exit' + '\t' + 'riskval' + '\t' + 'path' +'\n')
     for t in range(0, len(tar_locs)): #
         print(" working on target ", t)
