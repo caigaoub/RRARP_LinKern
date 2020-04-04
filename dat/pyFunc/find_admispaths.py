@@ -1,4 +1,6 @@
 #!/usr/bin/env python3.7
+import sys
+sys.path.insert(1,'/projects/academic/josewalt/caigao/lib/gurobi-env/lib/python3.7/site-packages/')
 import gurobipy as gp
 from gurobipy import GRB
 from itertools import combinations
@@ -324,7 +326,8 @@ def plot_target_area(center, obp_x, obp_y, obp_reward, entryP, exitP, path):
 
     plt.show()
 
-
+def read_config(config):
+    
 
 if __name__ == "__main__":
     instancefile = argv[1]
@@ -349,6 +352,7 @@ if __name__ == "__main__":
     # print(riskmatx[0])
 
     path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerPaths/'
+    path = '/projects/academic/josewalt/caigao/RRARP_LinKern/dat/InnerPaths/'
     print(type(instancefile))
     instancename = re.split(".dat", re.split("/", instancefile)[-1])[0]
     file = open(path+instancename+'.path', "w")

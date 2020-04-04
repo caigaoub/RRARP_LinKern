@@ -7,13 +7,13 @@
 #SBATCH  --nodes=1
 #SBATCH  --ntasks-per-node=12
 #SBATCH --mem=120000
-#SBATCH  --array=301-450
-#SBATCH  --job-name="TEST"
-#SBATCH  --output="./ret/console/Test-%a.out"
-#SBATCH  --error="./ret/console/Test-%a.err"
+#SBATCH  --array=1-1
+#SBATCH  --job-name="EzInst"
+#SBATCH  --output="/projects/academic/josewalt/caigao/RRARP_LinKern/dat/console/Ez-%a.out"
+#SBATCH  --error="/projects/academic/josewalt/caigao/RRARP_LinKern/dat/console/Ez-%a.err"
 #SBATCH --mail-user=caigao@buffalo.edu
 #SBATCH --mail-type=ALL
-#SBATCH --exclude=cpn-p26-[13-18]
+##SBATCH --exclude=cpn-p26-[13-18]
 ##SBATCH --requeue
 
 ##echo "SLURM_JOB_ID="$SLURM_JOB_ID
@@ -29,14 +29,10 @@ NPROCS=`srun --nodes=${SLURM_NNODES}$ bash -c 'hostname' |wc -l`
 echo "NPROCS="$NPROCS
 
 module load gurobi/9.0.0
+module load python/py37-anaconda-2020.02
 
-# make
+python3 find_admispaths.py ../configs/config_${SLURM_ARRAY_TASK_ID}
 
-#./bin/main 2 1 8 1 ./ret/configs/config_${SLURM_ARRAY_TASK_ID}
-
-# ./bin/main 3 1 8 1 ./ret/configs/config_${SLURM_ARRAY_TASK_ID}
-
- ./bin/main 3 1 12 1 ./ret/configs/config_${SLURM_ARRAY_TASK_ID}
 
 echo "===>> All Done!"
 
