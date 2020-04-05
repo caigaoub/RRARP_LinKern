@@ -1,0 +1,6 @@
+srun: error: "1$" is not a valid node count
+ Anaconda Python 3.6 version 5.3.1 has been loaded. 
+  File "find_admispaths.py", line 382
+    total_risk = 0
+                 ^
+TabError: inconsistent use of tabs and spaces in indentation

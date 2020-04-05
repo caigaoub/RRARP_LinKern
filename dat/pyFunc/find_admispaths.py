@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
-import sys
-sys.path.insert(1,'/projects/academic/josewalt/caigao/lib/gurobi-env/lib/python3.7/site-packages/')
+#import sys
+#sys.path.insert(1,'/projects/academic/josewalt/caigao/gurobi-env/lib/python3.7/site-packages/')
 import gurobipy as gp
 from gurobipy import GRB
 from itertools import combinations
@@ -99,7 +99,7 @@ def solve_CSP(riskmatx, obp_rews, rew_lb):
     try:
         # Create a new model
         model = gp.Model("CSP")
-        model.setParam(GRB.Param.OutputFlag, 1)
+        model.setParam(GRB.Param.OutputFlag, 0)
         model.setParam(GRB.Param.TimeLimit, 3600.0)
 
         x = model.addVars(n, n, vtype=GRB.BINARY,name="x")
@@ -343,12 +343,10 @@ if __name__ == "__main__":
     instancefile = path + 'dat/' + read_config(configfile)
 
     # instancefile = argv[1]
-
-
     departure, arrival, tar_locs, tar_rews, OBPX, OBPY, OBPREW = read_instance(instancefile)
     # print(departure, arrival, tar_locs, tar_rews, OBPX, OBPY)
 
-    nb_obserPts = 27
+    nb_obserPts = 25
     size_K = 16
     subangle = 2.0*np.pi/size_K;
     ''' build the risk matrix '''
@@ -369,7 +367,7 @@ if __name__ == "__main__":
     instancename = re.split(".dat", re.split("/", instancefile)[-1])[0]
     file = open(path + 'dat/InnerPaths/' + instancename+'.path', "w")
     file.write('target' + '\t' + 'entry' + '\t' + 'exit' + '\t' + 'riskval' + '\t' + 'path' +'\n')
-    for t in range(0, len(tar_locs)): #
+    for t in range(0, len(tar_locs)): 
         print(" working on target ", t)
         for i in range(0, size_K):
             for j in range(0, size_K):
@@ -380,18 +378,16 @@ if __name__ == "__main__":
                 for ii in range(1, nb_obserPts+1):
                     riskmatx[t][0][ii] = math.sqrt((entryP[0] - OBPX[t][ii-1])**2 + (entryP[1] - OBPY[t][ii-1])**2)
                     riskmatx[t][ii][nb_obserPts+1] = math.sqrt((exitP[0] - OBPX[t][ii-1])**2 + (exitP[1] - OBPY[t][ii-1])**2)
-                # tar_idx = 0
-                path = solve_CSP(riskmatx[t], OBPREW[t][0:nb_obserPts], tar_rews[t])
-                total_risk = 0
+		#path = solve_CSP(riskmatx[t], OBPREW[t][0:nb_obserPts], tar_rews[t])
+		total_risk = 0
                 for idx in range(0, len(path)-1):
                     total_risk += riskmatx[t][path[idx]][path[idx+1]]
                 total_risk = round(total_risk*1000.0)/1000.0
                 path_str = ''
                 for e in path[1:-1]:
-                    path_str += str(e)+','
-                file.write(str(t) + '\t' + str(i) + '\t' + str(j) + '\t' + str(total_risk) + '\t' + path_str + '\n')
+                    path_str += str(e)+','    
+		#file.write(str(t) + '\t' + str(i) + '\t' + str(j) + '\t' + str(total_risk) + '\t' + path_str + '\n')
                 # plot_target_area(tar_locs[tar_idx], OBPX[tar_idx][0:nb_obserPts], OBPY[tar_idx][0:nb_obserPts],OBPREW[tar_idx][0:nb_obserPts], entryP, exitP, path)
-                # exit()
 
     file.close()
 

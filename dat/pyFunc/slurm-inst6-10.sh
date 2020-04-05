@@ -7,7 +7,7 @@
 #SBATCH  --nodes=1
 #SBATCH  --ntasks-per-node=12
 #SBATCH --mem=120000
-#SBATCH  --array=1-150
+#SBATCH  --array=1-1
 #SBATCH  --job-name="T6-10"
 #SBATCH  --output="/projects/academic/josewalt/caigao/RRARP_LinKern/dat/console/T6-10-%a.out"
 #SBATCH  --error="/projects/academic/josewalt/caigao/RRARP_LinKern/dat/console/T6-10-%a.err"
@@ -28,11 +28,13 @@
 NPROCS=`srun --nodes=${SLURM_NNODES}$ bash -c 'hostname' |wc -l`
 echo "NPROCS="$NPROCS
 
-module load gurobi/9.0.0
-module load python/py37-anaconda-2020.02
+module load python/py36-anaconda-5.3.1
+module load gurobi/7.5.1-py36
 
-python3 find_admispaths.py ../configs/config_${SLURM_ARRAY_TASK_ID} -1
 
+echo "===>> Begin now!"
+
+python3 find_admispaths.py ../configs/config2_${SLURM_ARRAY_TASK_ID} -1
 
 echo "===>> All Done!"
 
