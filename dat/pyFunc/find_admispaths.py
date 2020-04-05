@@ -387,7 +387,7 @@ if __name__ == "__main__":
                 path_str = ''
                 for e in path[1:-1]:
                     path_str += str(e)+','    
-		#file.write(str(t) + '\t' + str(i) + '\t' + str(j) + '\t' + str(total_risk) + '\t' + path_str + '\n')
+		file.write(str(t) + '\t' + str(i) + '\t' + str(j) + '\t' + str(total_risk) + '\t' + path_str + '\n')
                 # plot_target_area(tar_locs[tar_idx], OBPX[tar_idx][0:nb_obserPts], OBPY[tar_idx][0:nb_obserPts],OBPREW[tar_idx][0:nb_obserPts], entryP, exitP, path)
 
     file.close()
