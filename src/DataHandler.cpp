@@ -10,14 +10,10 @@ void DataHandler::parse(string filename) {
 	// Geographic Information of Targets
 	auto pos = filename.find_last_of("/");
     _name = filename.substr(pos+1, filename.size());
-    size_t found = _name.find("c");
-	if (found == string::npos) {
-		file >> _nb_targets;
-		cout << "This instance is clustered!" << endl;
-	}else {
-		file >> _nb_targets >> _nb_clusters;
-		cout << "This is a clustered instance:" << _nb_clusters << endl;
-	}
+    // size_t found = _name.find("c");
+	// if (found == string::npos) {
+	file >> _nb_targets >> _nb_obps;
+	// }
 	file >> _depot1_loc._x >> _depot1_loc._y;
 	file >> _depot2_loc._x >> _depot2_loc._y;
 
@@ -32,8 +28,35 @@ void DataHandler::parse(string filename) {
 	for (int i = 0; i < _nb_targets; i++) {
 		file >> _bdg_rewards_ratio[i];
 	}
-	// for (int i = 0; i < _nb_targets; i++) {
-	// 	file >> _risk_thold_ratio[i];
+
+	_all_obps.resize(_nb_targets);
+	vector<string> emptystr(_nb_obps);
+	string::size_type sz;
+	ObsPoint obp; 
+	for (int i = 0; i < _nb_targets; i++){
+		for(int j = 0; j < _nb_obps; j++){
+			file >> emptystr[j];
+		}
+		_all_obps[i].resize(_nb_obps);
+		for(int j = 0; j < _nb_obps; j++){
+			pos = emptystr[j].find_first_of(":");
+			string temp = emptystr[j].substr(0, pos);
+			obp._rad = stod(temp.substr(sz));
+			string temp_left = emptystr[j].substr(pos+1, emptystr[j].size());
+			pos = temp_left.find_first_of(":");
+			temp = temp_left.substr(0, pos);
+			obp._angle = stod(temp.substr(sz));
+			temp = temp_left.substr(pos+1, temp_left.size());
+			obp._rewVal = stod(temp.substr(sz));
+			// obp.print();
+			_all_obps[i][j] = obp;
+		}	
+	}
+
+	// for (int i = 0; i < _nb_targets; i++){
+	// 	for(int j = 0; j < _nb_obps; j++){
+	// 		_all_obps[i][j].print();
+	// 	}
 	// }
 }
 
@@ -41,14 +64,10 @@ void DataHandler::parse(string filename) {
 DataHandler::~DataHandler() {
 	delete[] _radii;
 	delete[] _bdg_rewards_ratio;
-	// delete[] _risk_thold_ratio;
 	delete[] _target_locs;
 }
 
 void DataHandler::print() {
-	if (_nb_clusters != 0) {
-		cout << "0. targets are clustered: " << _nb_clusters << endl;
-	}	
 	cout << "1. start depot:  " << _depot1_loc._x << " " << _depot1_loc._y << endl;
 	cout << "2. end depot:  " << _depot2_loc._x << " " << _depot2_loc._y << endl;
 	cout << "3. # of cirlces:  " << _nb_targets << endl;

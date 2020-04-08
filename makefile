@@ -7,7 +7,7 @@ INCBOOST  	= -I /usr/include/
 CPPLIBBOOST 	= -L /usr/lib/  -lboost_system -lboost_filesystem
 
 all:
-	$(CPP) $(CPPARGS) $(SRCPATH)DataHandler.cpp $(SRCPATH)PartitionScheme.cpp \
+	$(CPP) $(CPPARGS) $(SRCPATH)DataHandler.cpp $(SRCPATH)PulseAlgo.cpp \
 	-o $(BINPATH)main $(SRCPATH)main.cpp $(INCBOOST) $(CPPLIBBOOST)
 
 clean:

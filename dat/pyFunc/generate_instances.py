@@ -75,8 +75,10 @@ def plot_instance(tar_locs, width, height):
     ax.set_aspect('equal', adjustable='box')
     plt.show()
 def write_instance(tar_locs, rewards_ratio, filename):
+
     file = open(filename, "w")
-    file.write(str(len(tar_locs)-2) + '\n')
+    nb_obps = 50
+    file.write(str(len(tar_locs)-2) + '\t' + str(nb_obps) + '\n')
     file.write(str(tar_locs[0][0]) + '\t' + str(tar_locs[0][1]) + '\n')
     file.write(str(tar_locs[1][0]) + '\t' + str(tar_locs[1][1]) + '\n')
     for i in range(2,len(tar_locs)):
@@ -90,7 +92,7 @@ def write_instance(tar_locs, rewards_ratio, filename):
     precision = 1000.0
     for i in range(0, len(tar_locs)-2):
         # file.write('T' + str(i+1) + '\t')
-        for j in range(0, 49):
+        for j in range(0, nb_obps-1):
             r = round(math.sqrt(np.random.uniform(0.1,0.9))*precision)/precision
             angle = round(np.random.uniform(0,2.0*np.pi)*precision)/precision
             rewp = round(np.random.uniform(0.1,0.2)*precision)/precision
@@ -105,7 +107,7 @@ def write_instance(tar_locs, rewards_ratio, filename):
 if __name__ == "__main__":
     ''' basic setting '''
     radius = 1.0
-    size_range = [6, 210]
+    size_range = [6, 6]
     path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/'
     for nb_targets in range(size_range[0], size_range[1]+1):
         densitycoef = 5
