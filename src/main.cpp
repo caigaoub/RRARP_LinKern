@@ -6,7 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <sys/stat.h>
 #include "PulseAlgo.h"
-
+#include "ProgTime.h"
 using namespace std;
 
 int main(int argc, const char* argv[]) {
@@ -35,8 +35,8 @@ int main(int argc, const char* argv[]) {
 	// dataset_.print();
 	Pulse  test_;
 	test_.initialize(dataset_, 0, 16, nb_obps);
-	Vertex entry = test_.get_turnpoint(1);
-	Vertex exit = test_.get_turnpoint(14);
+	Vertex entry = test_.get_turnpoint(0);
+	Vertex exit = test_.get_turnpoint(10);
 	test_.update_graph(entry, exit);
 	test_.calc_leastrisk_sink();
 	// for(unsigned i=0; i<test_._lbrisk_sink.size(); i++)
@@ -53,10 +53,15 @@ int main(int argc, const char* argv[]) {
 	// test_.initialize(adjmatx, rewards, size, 0.5);
 	// test_.calc_leastrisk_sink();
 	vector<int> path;
+	ProgTime test_time;
+	test_time.start_prog();
 	test_.recursive_search(0, path, 0, 0, false);
+	test_time.end_prog();
+	cout << " =====>>>> Time: " << test_time._elapsed_secs << endl;
 	test_.print_opt_sol();
 //	system("pause");
 	return 0;
 }
+
 
 

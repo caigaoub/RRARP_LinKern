@@ -84,9 +84,6 @@ double Pulse::eucl_distance(const Vertex& p1, const Vertex& p2){
 
 void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward, double pathrisk, bool log_on){
 	_iterations++;
-	// if(_iterations>20){
-	// 	return;
-	// }
 	if (log_on){
 		cout << '\n';
 		cout << "@@" << _iterations << ". current path: [";
@@ -101,6 +98,8 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 			curpath.push_back(_sink);
 			_curbest_path.clear();
 			_curbest_path = curpath;
+			// cout << "obj* (sink), " << _curbest_objval << " @iterations " << _iterations << endl;
+
 			if(log_on){
 				cout << "!!!!!!!GET AN IMPROVEMENT: new obj: " << _curbest_objval << '\t' << " new path: [" << endl;
 				for(unsigned i=0; i<_curbest_path.size(); i++){
@@ -130,11 +129,18 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 						cout << "... ENOUGH BUDGET IS MET "<< endl;
 					/*quick reach to sink */
 					auto ret = quick_wrapup(curpath, curnode);
+					// vector<int> path_sink({curnode,_sink});
+					// pair<double,vector<int>> ret = make_pair(_graph[curnode][_sink], path_sink);
 					if (pathrisk + _graph[lastnode][curnode] + ret.first < _curbest_objval){
 						_curbest_objval = pathrisk + _graph[lastnode][curnode] + ret.first;
 						_curbest_path.clear();
 						_curbest_path.insert(_curbest_path.end(), curpath.begin(), curpath.end());
 						_curbest_path.insert(_curbest_path.end(), ret.second.begin(), ret.second.end());
+						if (ret.second.size() > 2)
+							cout << "obj* (wrapup), " << _curbest_objval << " @iterations " << _iterations << endl;
+						else
+							cout << "obj* (sink), " << _curbest_objval << " @iterations " << _iterations << endl;
+
 						if(log_on){
 							cout << "!!!!!!!!find a better path. Total risk: " << _curbest_objval << " new path: ";
 							for(unsigned i=0; i<_curbest_path.size(); i++){
@@ -287,6 +293,7 @@ pair<double, vector<int>> Pulse::quick_wrapup(const vector<int>& visited, int st
 }
 
 void Pulse::print_opt_sol(){
+	cout << " =====>>> total reward: " << _total_reward << ", required budget: " << _budget << endl;
 	cout << " =====>>> optimal obj value: " << _curbest_objval << "  optimal path: ";
 	for(unsigned i =0; i < _curbest_path.size(); i++)
 		cout << _curbest_path[i] << ' ';

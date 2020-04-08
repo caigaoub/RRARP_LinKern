@@ -31,6 +31,7 @@ public:
 	vector<Vertex>					_tnps_tar;
 	int 							_iterations = 0;
 
+	
 	Pulse() {};
 	~Pulse() {};
 

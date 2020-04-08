@@ -352,16 +352,17 @@ if __name__ == "__main__":
 	departure, arrival, tar_locs, tar_rews, OBPX, OBPY, OBPREW = read_instance(instancefile)
 	# print(departure, arrival, tar_locs, tar_rews, OBPX, OBPY)
 
-	nb_obserPts = 20
+	nb_obserPts = 26
 	size_K = 16
 	subangle = 2.0*np.pi/size_K;
 	''' build the risk matrix '''
 	riskmatx = np.zeros(shape=(len(tar_locs), nb_obserPts+2, nb_obserPts+2))
 	for t in range(0, len(tar_locs)):
 		for i in range(0, nb_obserPts):
-			for j in range(1, nb_obserPts):
+			for j in range(i, nb_obserPts):
 				if i != j:
-					riskmatx[t][i][j] = math.sqrt((OBPX[t][i-1] - OBPX[t][j-1])**2 + (OBPY[t][i-1] - OBPY[t][j-1])**2)
+					riskmatx[t][i+1][j+1] = math.sqrt((OBPX[t][i] - OBPX[t][j])**2 + (OBPY[t][i] - OBPY[t][j])**2)
+					riskmatx[t][j+1][i+1] = riskmatx[t][i+1][j+1]
 					# riskmatx[t][i][j] = (OBPX[t][i-1] - OBPX[t][j-1])**2 + (OBPY[t][i-1] - OBPY[t][j-1])**2
 				# else:
 				#     riskmatx[t][i][j] = 0.0
@@ -376,7 +377,7 @@ if __name__ == "__main__":
 	for t in range(0, len(tar_locs)): 
 		print(" working on target ", t)
 		for i in range(0, size_K):
-			for j in range(9, size_K):
+			for j in range(10, size_K):
 				print("entry: ", i, "exit: ", j)
 				''' update risk matrix '''
 				entryP = [tar_locs[t][0] + tar_locs[t][2]*math.cos(subangle*i), tar_locs[t][1] + tar_locs[t][2]*math.sin(subangle*i)];
@@ -388,11 +389,12 @@ if __name__ == "__main__":
 					riskmatx[t][nb_obserPts+1][ii] = riskmatx[t][ii][nb_obserPts+1]
 				# path = solve_CSP(riskmatx[t], OBPREW[t][0:nb_obserPts], tar_rews[t])
 
-				budget_pct = 0.3
+				budget_pct = 0.5
 				OP_rews = OBPREW[t][0:nb_obserPts]
 				OP_rews.append(0)
 				OP_rews.insert(0, 0)   
 				t0 = time.time()
+				# print(riskmatx[t])
 				path = solve_CSP(riskmatx[t], OP_rews, budget_pct)
 				print("Model Time:",time.time() - t0)
 				exit()
@@ -422,8 +424,6 @@ if __name__ == "__main__":
 
 
 
-
-
 	# risktest = np.array([[0, 2, 3, 0, 0, 0, 0], 
 	#                      [2, 0, 9, 1, 2, 0, 0], 
 	#                      [3, 9, 0, 1, 0, 1, 0], 
@@ -433,4 +433,6 @@ if __name__ == "__main__":
 	#                      [0, 0, 0, 0, 2, 1, 0]])
 	# OBPREWtest = [2, 3, 1, 4, 2]
 	# solve_CSP(risktest, OBPREWtest, 0.6)
+
+
 
