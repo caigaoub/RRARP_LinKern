@@ -49,23 +49,23 @@ subidx_max = 10
 
 path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat'
 idx_config = 1
-for instsize in range(instsize_min, instsize_max+1):
-	for sidx in range(subidx_min, subidx_max+1):
-		print(idx_config)
-		file = open(path + "/configs/config2_" + str(idx_config), "w")
-		file.write("n_"+str(instsize) + '_' + 'e' + '_' + str(sidx)+".dat")
-		file.close()
-		idx_config += 1
-	print("done with EASY instance of", instsize, "targets")
+# for instsize in range(instsize_min, instsize_max+1):
+# 	for sidx in range(subidx_min, subidx_max+1):
+# 		print(idx_config)
+# 		file = open(path + "/configs/config2_" + str(idx_config), "w")
+# 		file.write("n_"+str(instsize) + '_' + 'e' + '_' + str(sidx)+".dat")
+# 		file.close()
+# 		idx_config += 1
+# 	print("done with EASY instance of", instsize, "targets")
 
-for instsize in range(instsize_min, instsize_max+1):
-	for sidx in range(subidx_min, subidx_max+1):
-		print(idx_config)
-		file = open(path + "/configs/config2_" + str(idx_config), "w")
-		file.write("n_"+str(instsize) + '_' + 'm' + '_' + str(sidx)+".dat")
-		file.close()
-		idx_config += 1
-	print("done with MEDIUM instance of", instsize, "targets")
+# for instsize in range(instsize_min, instsize_max+1):
+# 	for sidx in range(subidx_min, subidx_max+1):
+# 		print(idx_config)
+# 		file = open(path + "/configs/config2_" + str(idx_config), "w")
+# 		file.write("n_"+str(instsize) + '_' + 'm' + '_' + str(sidx)+".dat")
+# 		file.close()
+# 		idx_config += 1
+# 	print("done with MEDIUM instance of", instsize, "targets")
 
 
 for instsize in range(instsize_min, instsize_max+1):

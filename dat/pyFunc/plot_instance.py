@@ -26,7 +26,7 @@ def plot_instance(instancefile):
     maxx = -100
     miny = 100000
     maxy = -100
-    #departure
+    #departure depot
     line_ = file_.readline()
     list_ = re.split("\t|\n", line_)    
     departure = [float(list_[0])]
@@ -39,7 +39,7 @@ def plot_instance(instancefile):
     ax.add_artist(circle)
     # ax.annotate("("+str(0)+": " + str(departure[0])+","+str(departure[1])+")", xy=(departure[0], departure[1]), xytext=(departure[0]+0.3, departure[1]+0.3))
 
-    #arrival
+    #arrival depot
     line_ = file_.readline()
     list_ = re.split("\t|\n", line_)    
     arrival = [float(list_[0])]
@@ -97,7 +97,8 @@ def plot_instance(instancefile):
                     obpY.append(obp_y)
                     colors.append(float(list2_[2]))
             area = [1]*len(obpX)
-            plt.scatter(obpX[1:20], obpY[1:20], s=area[1:20], c=colors[1:20],cmap='hsv', alpha=0.5)            
+            nbobps_showed = 16 + 200 # first 16 are boundary points
+            plt.scatter(obpX[0:nbobps_showed], obpY[0:nbobps_showed], s=area[0:nbobps_showed], c=colors[0:nbobps_showed],cmap='hsv', alpha=0.5)            
             tar_idx += 1
             line_ = file_.readline()
 
@@ -107,9 +108,6 @@ def plot_instance(instancefile):
     # plt.xticks(np.arange(minx,maxx,1))
     # plt.yticks(np.arange(miny,maxy,1))
     plt.grid(alpha=.5)
-
-
-
     plt.show()
 
 ################################################################################################
@@ -120,5 +118,6 @@ def plot_instance(instancefile):
 # instancefile = '/home/cai/Dropbox/Box_Research/Github/RRARP_BD/BendersDecomp/RRARP-BD/dat/test_n_6.txt'
 # instancefile = '/home/caigao/Dropbox/Box_Research/Github/RRARP_BD/BendersDecomp/RRARP-BD/dat/test_n_6.txt'
 
-instancefile = argv[1]
-plot_instance(instancefile)
+if __name__ == "__main__":
+    instancefile = argv[1]
+    plot_instance(instancefile)

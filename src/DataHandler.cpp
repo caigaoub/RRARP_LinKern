@@ -13,6 +13,7 @@ void DataHandler::parse(string filename) {
     // size_t found = _name.find("c");
 	// if (found == string::npos) {
 	file >> _nb_targets >> _nb_obps;
+	_nb_obps += 16;
 	// }
 	file >> _depot1_loc._x >> _depot1_loc._y;
 	file >> _depot2_loc._x >> _depot2_loc._y;

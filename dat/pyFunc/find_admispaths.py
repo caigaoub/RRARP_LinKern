@@ -102,7 +102,7 @@ def solve_CSP(riskmatx, obp_rews, rew_lb):
 	try:
 		# Create a new model
 		model = gp.Model("CSP")
-		model.setParam(GRB.Param.OutputFlag, 0)
+		model.setParam(GRB.Param.OutputFlag, 1)
 		model.setParam(GRB.Param.TimeLimit, 3600.0)
 
 		x = model.addVars(n, n, vtype=GRB.BINARY,name="x")
@@ -292,7 +292,7 @@ def read_instance(instancefile):
 	file_.close()
 	return departure, arrival, tar_locs, tar_rews, OBPX, OBPY,OBPREW
 
-def plot_target_area(center, obp_x, obp_y, obp_reward, entryP, exitP, path):
+def plot_target_area(center, obp_x, obp_y, obp_reward, entryP, exitP, path=None):
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	plt.axis('off')
@@ -310,20 +310,20 @@ def plot_target_area(center, obp_x, obp_y, obp_reward, entryP, exitP, path):
 	for i, txt in enumerate(range(1,len(obp_x)+1)):
 		# ax.annotate(txt, (obp_x[i]+0.02, obp_y[i]+0.02),size=10)
 		ax.annotate(txt,  (obp_x[i]+0.02, obp_y[i]-0.02), horizontalalignment='right', verticalalignment='top',size=10)
+	if path != None:
+		# minimum risk path with profit
+		pathX = [entryP[0]]
+		# pathX = []
+		for e in path[1:len(path)-1]:
+			pathX.append(obp_x[e-1])
+		pathX.append(exitP[0])
 
-	# minimum risk path with profit
-	pathX = [entryP[0]]
-	# pathX = []
-	for e in path[1:len(path)-1]:
-		pathX.append(obp_x[e-1])
-	pathX.append(exitP[0])
-
-	pathY = [entryP[1]]
-	# pathY = []
-	for e in path[1:len(path)-1]:
-		pathY.append(obp_y[e-1])
-	pathY.append(exitP[1])
-	plt.plot(pathX, pathY,'k')
+		pathY = [entryP[1]]
+		# pathY = []
+		for e in path[1:len(path)-1]:
+			pathY.append(obp_y[e-1])
+		pathY.append(exitP[1])
+		plt.plot(pathX, pathY,'k')
 	# entry and exit point
 	circle = plt.Circle((entryP[0], entryP[1]), radius=0.02, edgecolor='k',facecolor='k')
 	ax.add_artist(circle)
@@ -352,7 +352,7 @@ if __name__ == "__main__":
 	departure, arrival, tar_locs, tar_rews, OBPX, OBPY, OBPREW = read_instance(instancefile)
 	# print(departure, arrival, tar_locs, tar_rews, OBPX, OBPY)
 
-	nb_obserPts = 26
+	nb_obserPts =30
 	size_K = 16
 	subangle = 2.0*np.pi/size_K;
 	''' build the risk matrix '''
@@ -361,8 +361,9 @@ if __name__ == "__main__":
 		for i in range(0, nb_obserPts):
 			for j in range(i, nb_obserPts):
 				if i != j:
-					riskmatx[t][i+1][j+1] = math.sqrt((OBPX[t][i] - OBPX[t][j])**2 + (OBPY[t][i] - OBPY[t][j])**2)
-					riskmatx[t][j+1][i+1] = riskmatx[t][i+1][j+1]
+					if math.sqrt((OBPX[t][i] - OBPX[t][j])**2 + (OBPY[t][i] - OBPY[t][j])**2) < 0.5:
+						riskmatx[t][i+1][j+1] = math.sqrt((OBPX[t][i] - OBPX[t][j])**2 + (OBPY[t][i] - OBPY[t][j])**2)
+						riskmatx[t][j+1][i+1] = riskmatx[t][i+1][j+1]
 					# riskmatx[t][i][j] = (OBPX[t][i-1] - OBPX[t][j-1])**2 + (OBPY[t][i-1] - OBPY[t][j-1])**2
 				# else:
 				#     riskmatx[t][i][j] = 0.0
@@ -374,19 +375,21 @@ if __name__ == "__main__":
 	instancename = re.split(".dat", re.split("/", instancefile)[-1])[0]
 	file = open(path + 'dat/InnerPaths/' + instancename+'.path', "w")
 	file.write('target' + '\t' + 'entry' + '\t' + 'exit' + '\t' + 'riskval' + '\t' + 'path' +'\n')
-	for t in range(0, len(tar_locs)): 
+	for t in range(4, len(tar_locs)): 
 		print(" working on target ", t)
 		for i in range(0, size_K):
-			for j in range(10, size_K):
+			for j in range(2, size_K):
 				print("entry: ", i, "exit: ", j)
 				''' update risk matrix '''
 				entryP = [tar_locs[t][0] + tar_locs[t][2]*math.cos(subangle*i), tar_locs[t][1] + tar_locs[t][2]*math.sin(subangle*i)];
 				exitP = [tar_locs[t][0] + tar_locs[t][2]*math.cos(subangle*j), tar_locs[t][1] + tar_locs[t][2]*math.sin(subangle*j)];
 				for ii in range(1, nb_obserPts+1):
-					riskmatx[t][0][ii] = math.sqrt((entryP[0] - OBPX[t][ii-1])**2 + (entryP[1] - OBPY[t][ii-1])**2)
-					riskmatx[t][ii][0] = riskmatx[t][0][ii]
-					riskmatx[t][ii][nb_obserPts+1] = math.sqrt((exitP[0] - OBPX[t][ii-1])**2 + (exitP[1] - OBPY[t][ii-1])**2)
-					riskmatx[t][nb_obserPts+1][ii] = riskmatx[t][ii][nb_obserPts+1]
+					if math.sqrt((entryP[0] - OBPX[t][ii-1])**2 + (entryP[1] - OBPY[t][ii-1])**2) < 1.0:
+						riskmatx[t][0][ii] = math.sqrt((entryP[0] - OBPX[t][ii-1])**2 + (entryP[1] - OBPY[t][ii-1])**2)
+						riskmatx[t][ii][0] = riskmatx[t][0][ii]
+					if math.sqrt((exitP[0] - OBPX[t][ii-1])**2 + (exitP[1] - OBPY[t][ii-1])**2) < 1.0:
+						riskmatx[t][ii][nb_obserPts+1] = math.sqrt((exitP[0] - OBPX[t][ii-1])**2 + (exitP[1] - OBPY[t][ii-1])**2)
+						riskmatx[t][nb_obserPts+1][ii] = riskmatx[t][ii][nb_obserPts+1]
 				# path = solve_CSP(riskmatx[t], OBPREW[t][0:nb_obserPts], tar_rews[t])
 
 				budget_pct = 0.5
@@ -397,16 +400,15 @@ if __name__ == "__main__":
 				# print(riskmatx[t])
 				path = solve_CSP(riskmatx[t], OP_rews, budget_pct)
 				print("Model Time:",time.time() - t0)
-				exit()
 
-				G = nx.Graph(riskmatx[t])
-				minrisk_sink = nx.single_source_dijkstra_path_length(G,source=len(G.nodes)-1)
+				# G = nx.Graph(riskmatx[t])
+				# minrisk_sink = nx.single_source_dijkstra_path_length(G,source=len(G.nodes)-1)
 				
-				test = rs.Pulse(G, budget_pct, minrisk_sink, OP_rews)
-				t0 = time.time()
-				test.recursive_search(0, [], 0.0, 0.0,False)
-				test.print_optimal_sol()
-				print("Pulse Algorithm Time:",time.time() - t0)
+				# test = rs.Pulse(G, budget_pct, minrisk_sink, OP_rews)
+				# t0 = time.time()
+				# test.recursive_search(0, [], 0.0, 0.0,False)
+				# test.print_optimal_sol()
+				# print("Pulse Algorithm Time:",time.time() - t0)
 				total_risk = 0
 				for idx in range(0, len(path)-1):
 					total_risk += riskmatx[t][path[idx]][path[idx+1]]
@@ -414,8 +416,12 @@ if __name__ == "__main__":
 				path_str = ''
 				for e in path[1:-1]:
 					path_str += str(e)+','    
+				tar_idx = t	
 				file.write(str(t) + '\t' + str(i) + '\t' + str(j) + '\t' + str(total_risk) + '\t' + path_str + '\n')
-				# plot_target_area(tar_locs[tar_idx], OBPX[tar_idx][0:nb_obserPts], OBPY[tar_idx][0:nb_obserPts],OBPREW[tar_idx][0:nb_obserPts], entryP, exitP, path)
+				plot_target_area(tar_locs[tar_idx], OBPX[tar_idx][0:nb_obserPts], OBPY[tar_idx][0:nb_obserPts],OBPREW[tar_idx][0:nb_obserPts], entryP, exitP, path)
+				# plot_target_area(tar_locs[tar_idx], OBPX[tar_idx][0:nb_obserPts], OBPY[tar_idx][0:nb_obserPts],OBPREW[tar_idx][0:nb_obserPts], entryP, exitP)
+				
+				exit()
 
 	file.close()
 
