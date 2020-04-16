@@ -62,7 +62,7 @@ int main(int argc, const char* argv[]) {
 	vector<int> path;
 	ProgTime test_time;
 	test_time.start_prog();
-	test_.recursive_search(0, path, 0, 0, log_on);
+	test_.recursive_search(source, path, 0, 0, log_on);
 	test_time.end_prog();
 	cout << " =====>>>> Time: " << test_time._elapsed_secs << endl;
 	test_.print_opt_sol();
