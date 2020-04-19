@@ -47,3 +47,15 @@ print(comp_set)
 # e = E[0]
 # G[e[0]][e[1]]['weight'] =10
 # print(G[e[0]][e[1]]['weight'])
+
+
+
+====>>>> Algorithm iniialization: least risky path to sink 
+... Propogate from source 3 to node 34
+... Propogate from source 3 to node 64
+... Propogate from source 3 to node 72
+... Propogate from source 3 to node 74
+ =====>>>> Time: 11.5711
+ =====>>> total reward: 8.712, Demand: 3.4848, Reward on min-risk path: 0.837
+ =====>>> optimal obj value: 3.12174, collected reward: 3.52
+          optimal path [3 74 34 47 24 72 21 52 62 41 45 49 67 16 28 43 54 31 61 37 17 68 65 63 32 15 ]

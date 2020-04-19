@@ -193,9 +193,9 @@ if __name__ == "__main__":
 	'''two depots, n target areas, reward pct, all observation points, and reward values on Obser. point '''
 	departure, arrival, tar_locs, tar_rews, OBPX, OBPY, OBPREW = read_instance(instance)
 	tar_idx = 4
-	# plot_ObP_graph(tar_locs[tar_idx], OBPX[tar_idx][0:nb_ObPs], OBPY[tar_idx][0:nb_ObPs], OBPREW[tar_idx][0:nb_ObPs])
+	plot_ObP_graph(tar_locs[tar_idx], OBPX[tar_idx][0:nb_ObPs], OBPY[tar_idx][0:nb_ObPs], OBPREW[tar_idx][0:nb_ObPs])
 	# plot_ObP_graph222()
-	plot_ObP_3D_surface()
+	# plot_ObP_3D_surface()
 
 
 
@@ -217,9 +217,7 @@ if __name__ == "__main__":
 	# write_triGraph(instance, filename, 16+40)
 	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_30'
 	# write_triGraph(instance, filename, 16+30)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_10'
-	# write_triGraph(instance, filename, 16+10)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_15'
+	write_triGraph(instance, filename, 16+15)
 
 
-
-	# 0.158 0.105 0.172 0.156 0.157 0.115 0.16 0.12 0.108 0.157

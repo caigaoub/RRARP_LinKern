@@ -23,7 +23,7 @@ void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps
 	// cout << _total_reward << endl;
 
 	_budget_pct = _dataset->_bdg_rewards_ratio[_taridx];
-	_budget_pct = 0.1;
+	_budget_pct = 1.0;
 
 	_budget = _total_reward * _budget_pct;
 	// cout << "total reward: " << _total_reward << '\t' ;
@@ -63,6 +63,7 @@ void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps
 		}	
 	}
 
+	// exit(0);
 	_graph.resize(_graphsize);
 	for(int i=0; i < _graphsize; i++)
 		_graph[i].resize(_graphsize, INF);
@@ -81,7 +82,16 @@ void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps
 		}
 	}	
 	
-	_domi_labels.resize(_graphsize, make_pair(INF, 0));
+	_domi_labels.resize(_graphsize);
+	
+	_L1.resize(_graphsize,make_pair(INF, 0.0));
+	_L2.resize(_graphsize,make_pair(INF, 0.0));
+	_L3.resize(_graphsize,make_pair(INF, 0.0));
+
+
+	// for(int i=0; i < _graphsize; i++){
+	// 	_domi_labels[i].resize()
+	// }
 
 	// for(int i=0; i < _graphsize ; i++){
 	// 	for(int j=0; j < _graphsize; j++){
@@ -91,19 +101,6 @@ void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps
 	// }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps){
 	this->_dataset = &dataset;
@@ -157,7 +154,7 @@ void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps
 		// _tnps_tar[i].print();
 	}
 
-	_domi_labels.resize(_graphsize, make_pair(INF, 0));
+	// _domi_labels.resize(_graphsize, make_pair(INF, 0));
 
 }
 
@@ -187,7 +184,7 @@ void Pulse::initialize_generalgraph(vector<vector<double>>& adjmatx, vector<doub
 		}
 		// cout << '\n';
 	}
-	_domi_labels.resize(_graphsize, make_pair(INF, 0));
+	// _domi_labels.resize(_graphsize, make_pair(INF, 0));
 	
 }
 
@@ -236,6 +233,8 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 	if(_source == _sink)
 		cerr << "Current code does not work when source is same as sink!! Regenerate the grpah "<< endl;
 	_iterations++;
+	// if(_iterations > 50)
+	// 	exit(0);
 	if (log_on){
 		cout << '\n';
 		cout << "@@" << _iterations << ". current path: [";
@@ -245,6 +244,8 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 		cout << "], path reward: " << pathreward << ", path risk: " << pathrisk <<  ", consider moving to node " << curnode <<  endl;
 	}
 	if(curnode == _sink ){
+		// if(_budget - pathreward< 0.2)
+		// 	cout << _budget - pathreward << endl;
 		if(pathreward >= _budget && pathrisk + _graph[curpath.back()][_sink] < _curbest_objval){
 			_curbest_objval = pathrisk + _graph[curpath.back()][_sink];
 			curpath.push_back(_sink);
@@ -268,7 +269,7 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 	}
 
 
-	if(curnode != _source){
+	if(curnode != _source && curnode != _sink){
 		int lastnode = curpath.back();
 		if(pathrisk + _lbrisk_sink[curnode] < _curbest_objval){ //primal bound check
 			if(log_on)
@@ -286,22 +287,16 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 				cout << "intersected? " << flag << '\n';
 			}
 			double add_reward = (flag)? 0.0:_rewards_lbrpaths_sink[curnode]-_rewards_etd[curnode];
-			if(pathreward + _rewards_etd[curnode] + add_reward >= _budget){// partial path expansion 
+			if(pathreward + _rewards_etd[curnode] + add_reward +0.000001>= _budget){// partial path expansion 
 				if(log_on){
-					cout << "... ENOUGH BUDGET IS MET ..." ;
-					if(flag){
-						cout << " expanded by (subgraph(v~~>b)); curpath length: " << curpath.size() << endl; 
-					}else{
-						cout << " expanded by (orginal graph (v~~>b)); curpath length: " << curpath.size()  << endl;
-					}
-
+					cout << "... ENOUGH BUDGET IS MET ... Pick extended path ";
 				}
 				pair<double,vector<int>> ret;
 				if(flag == true){
 					/*expand curpath to a full path by linking to shortest path to sink over subgraph */
 					ret = quick_wrapup(curpath, curnode);
 					if(log_on){
-						cout << "path_to_sink(Subgraph): ";
+						cout << "on **Subgraph**: ";
 						for(unsigned j=0; j <ret.second.size(); j++){
 							cout << ret.second[j] << ' ';
 						}
@@ -310,13 +305,14 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 				}else{
 					ret = make_pair(_lbrisk_sink[curnode], _lbriskpaths_sink[curnode]);
 					if(log_on){
-						cout << "path_to_sink(orginal Graph): ";
+						cout << "on **orginal Graph**: ";
 						for(unsigned j=0; j <ret.second.size(); j++){
 							cout << ret.second[j] << ' ';
 						}
 						cout << '\n';
 					}
 				}
+
 				if (pathrisk + _graph[lastnode][curnode] + ret.first < _curbest_objval){ // primal bound update 
 					_curbest_objval = pathrisk + _graph[lastnode][curnode] + ret.first;
 					_curbest_path.clear();
@@ -329,6 +325,9 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 						}
 						cout << "curbest_obj: " << _curbest_objval <<  "\n"; 
 					}							
+				}else{
+					if(log_on)	
+						cout << "... Propogate to sink. No better than cur OBJ." << endl;
 				}
 			}else{
 				if(log_on){
@@ -339,15 +338,16 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 	
 				double newpathrisk = pathrisk + _graph[lastnode][curnode];
 				double newpathreward = pathreward + _rewards_etd[curnode];
-				if(!check_dominance(curnode, newpathrisk, newpathreward)){
+				bool is_dominated = check_dominance(curnode, newpathrisk, newpathreward);
+				if(!is_dominated){
 					if(log_on)
 						cout <<"... pass dominance check" << endl;
 					update_domilabels(curnode, newpathrisk, newpathreward);
 					for(int ngb=0; ngb <_graphsize; ngb++){
-						if(_graph[curnode][ngb] < 1000.0 && abs(_rewards_etd[ngb]) > 0.00001){
+						if(_graph[curnode][ngb] < 1000.0){ //  && abs(_rewards_etd[ngb]) > 0.00001
 							if(std::find(newpath.begin(), newpath.end(), ngb) == newpath.end()){			
 								if(log_on){
-									cout << "... " << ngb << " is not visited. Move to it. input path: [";
+									cout << "... " << ngb << " is not visited. *propogate* Input path: [";
 									for(unsigned i=0; i<newpath.size(); i++)
 										cout << newpath[i] << ' ';
 
@@ -360,6 +360,9 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 							}							
 						}
 					}
+				}else{
+					if(log_on)
+						cout <<"... pruned by dominance" << endl;
 				}
 			}
 
@@ -371,7 +374,7 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 		/* current node is the source. Propogate to every neighbor */
 		vector<int> curpath = {_source};
 		for(int ngb=0; ngb<_graphsize; ngb++){
-			if(_graph[curnode][ngb] < 10000.0 && abs(_rewards_etd[ngb]) > 0.00001){
+			if(_graph[curnode][ngb] < 10000.0 ){ // && abs(_rewards_etd[ngb]) > 0.00001
 				cout << "... Propogate from source " << _source << " to node " << ngb << endl;
 				this->recursive_search(ngb, curpath, 0.0, 0.0, log_on);
 			}
@@ -380,19 +383,55 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 }
 
 bool Pulse::check_dominance(int node, double pathrisk, double pathreward){
-	if( (pathrisk >= _domi_labels[node].first && pathreward < _domi_labels[node].second) || (pathrisk > _domi_labels[node].first && pathreward <= _domi_labels[node].second)){
-		return true;
-	}else{
-		return false;
+	set<pair<double,double>>::iterator itr;
+	for(itr=_domi_labels[node].begin(); itr !=_domi_labels[node].end(); ){
+		// cout << node << " cur: " << pathrisk << ", " << pathreward << " with: " <<itr->first << ", " << itr->second << endl;
+		if((pathrisk >= itr->first && pathreward <= itr->second)){		
+			// cout << " -------unfinished---------" << endl;
+			return true;
+		}
+		++itr;
 	}
+	// cout << " -------done---------" << endl;
+	return false;
+
+	// if((pathrisk >= _L1[node].first && pathreward <= _L1[node].second)||(pathrisk >= _L2[node].first && pathreward <= _L2[node].second)||(pathrisk >= _L3[node].first && pathreward <= _L3[node].second)){
+	// 	return true;
+	// }
+	// return false;
 
 }
 
 void Pulse::update_domilabels(int node, double pathrisk, double pathreward){
-	if(pathrisk <= _domi_labels[node].first && pathreward >= _domi_labels[node].second){
-		_domi_labels[node].first = pathrisk;
-		_domi_labels[node].second = pathreward;
+	if(_domi_labels[node].size() == 0){
+		_domi_labels[node].insert(make_pair(pathrisk, pathreward));
+	}else{
+		bool IN = true;
+		set<pair<double,double>>::iterator itr;
+		for(itr=_domi_labels[node].begin(); itr !=_domi_labels[node].end();){
+			if(pathrisk <= itr->first && pathreward >= itr->second){				
+				itr = _domi_labels[node].erase(itr);
+			}else{
+				itr++;
+			}
+			if(itr->first <= pathrisk && itr->second >= pathreward){				
+				IN = false;
+			}
+		}
+		if(_domi_labels[node].size() < _maxlabsize && IN){
+			_domi_labels[node].insert(make_pair(pathrisk, pathreward));
+		}
 	}
+
+
+	// if(pathrisk <= _L1[node].first){
+	// 	_L1[node] = make_pair(pathrisk, pathreward );
+	// }else if(pathreward <= _L2[node].second){
+	// 	_L2[node] = make_pair(pathrisk, pathreward);
+	// }else{
+	// 	_L3[node] = make_pair(pathrisk, pathreward);
+	// }
+
 }
 
 bool Pulse::is_intersected(vector<int>& vec1, vector<int>& vec2){
@@ -440,7 +479,7 @@ void Pulse::calc_leastrisk_sink(){
 		}
 		visited[u] = true;
 		for(int v=0; v<_graphsize; v++){
-			if(visited[v] == false && _lbrisk_sink[u] + _graph[u][v] < _lbrisk_sink[v] && !(u<16 && v<16)){ //*** not use void edge
+			if(visited[v] == false && _lbrisk_sink[u] + _graph[u][v] < _lbrisk_sink[v]){ //*** not use void edge
 				_lbrisk_sink[v] = _lbrisk_sink[u] + _graph[u][v];
 				prevnode[v] = u;
 			}
@@ -459,20 +498,20 @@ void Pulse::calc_leastrisk_sink(){
 			curnode = prevnode[curnode];		
 		}
 	}
-	for(int i=0; i<_graphsize; i++){
-		cout << " ... node " << i << " to sink " << _sink << ": ";
-		for(unsigned j=0; j<_lbriskpaths_sink[i].size();j++){
-			cout << _lbriskpaths_sink[i][j] << ',';
+	if(false){
+		for(int i=0; i<_graphsize; i++){
+			cout << " ... node " << i << " to sink " << _sink << ": ";
+			for(unsigned j=0; j<_lbriskpaths_sink[i].size();j++){
+				cout << _lbriskpaths_sink[i][j] << ',';
+			}
+			cout << " ---- Total rewards: " << _rewards_lbrpaths_sink[i];
+			cout << '\n';
 		}
-		cout << " ---- Total rewards: " << _rewards_lbrpaths_sink[i];
-		cout << '\n';
 	}
-	// // exit(1);
-
-	// cout << "least risk path to sink: " ;
-	// for(int i=0; i<_graphsize; i++)
-	// 	cout << _lbrisk_sink[i] << " ";
-	// cout << endl;
+	// _budget = 10.0 * _rewards_lbrpaths_sink[_source];
+	if (_budget <= _rewards_lbrpaths_sink[_source]){
+		cerr << "Reward on min-risk path already satisfies the demand!!!" << endl;
+	}
 }
 
 pair<double, vector<int>> Pulse::quick_wrapup(const vector<int>& visited, int startnode){
@@ -537,10 +576,24 @@ pair<double, vector<int>> Pulse::quick_wrapup(const vector<int>& visited, int st
 	return make_pair(dist[_sink], optpath);
 }
 
+double Pulse::calc_path_rewards(vector<int> & path){
+	double total_reward = 0.0;
+	for(unsigned i=0; i < path.size(); i++){
+		total_reward += _rewards_etd[path[i]];
+	}
+	return total_reward;
+}
+
+
 void Pulse::print_opt_sol(){
-	cout << " =====>>> total reward: " << _total_reward << ", required budget: " << _budget << endl;
-	cout << " =====>>> optimal obj value: " << _curbest_objval << "  optimal path: ";
-	for(unsigned i =0; i < _curbest_path.size(); i++)
+	cout << " =====>>> total reward: " << _total_reward << ", Demand: " << _budget << ", Reward on min-risk path: " << _rewards_lbrpaths_sink[_source] << endl;
+	cout << " =====>>> optimal obj value: " << _curbest_objval << ", collected reward: " << calc_path_rewards(_curbest_path) << endl; 
+	cout << "          optimal path [";
+	double verified_obj = 0;
+	for(unsigned i =0; i < _curbest_path.size(); i++){
 		cout << _curbest_path[i] << ' ';
-	cout << '\n';
+		if(i < _curbest_path.size()-1)
+			verified_obj += _graph[_curbest_path[i]][_curbest_path[i+1]];
+	}
+	cout << "]\n";
 }
