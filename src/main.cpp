@@ -39,12 +39,23 @@ int main(int argc, const char* argv[]) {
 	// const int nb_obps = atoi(argv[1]);
 	// const int type_trajc = atoi(argv[2]);
 	string configfile = argv[1];
-	const int nb_obps = atoi(argv[2]);
+	string configfile2 = argv[2];
+
+	// const int nb_obps = atoi(argv[2]);
 	// const int source = atoi(argv[3]);
 	// const int sink = atoi(argv[4]);
-	const double demandPCT = atof(argv[3]);
-	const int is_server = atoi(argv[4]);
+	// const double demandPCT = atof(argv[3]);
+	const int is_server = atoi(argv[3]);
 
+	fstream file_params(configfile2);
+	if (!file_params) {
+		cerr << "ERROR: could not open config '" << configfile2 << "' for reading'" << endl;
+		throw(-1);
+	}
+	int nb_obps; 
+	double demandPCT;
+	file_params >> nb_obps >> demandPCT;
+	file_params.close();
 
 	fstream file(configfile);
 	if (!file) {

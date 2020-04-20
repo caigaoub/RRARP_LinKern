@@ -7,7 +7,7 @@
 #SBATCH  --nodes=1
 #SBATCH  --ntasks-per-node=12
 #SBATCH --mem=120000
-#SBATCH  --array=1-1
+#SBATCH  --array=1-100
 #SBATCH  --job-name="pulse"
 #SBATCH  --output="./dat/console/pulse-%a.out"
 #SBATCH  --error="./dat/console/pulse-%a.err"
@@ -25,12 +25,12 @@
 ##echo "SLURM_ARRAY_TASK_ID"=$SLURM_ARRAY_TASK_ID
 ##echo "working directory = "$SLURM_SUBMIT_DIR
 
-NPROCS=`srun --nodes=${SLURM_NNODES}$ bash -c 'hostname' |wc -l`
-echo "NPROCS="$NPROCS
+# NPROCS=`srun --nodes=${SLURM_NNODES}$ bash -c 'hostname' |wc -l`
+# echo "NPROCS="$NPROCS
 
 echo "===>> Begin!"
 
-#./bin/main ./dat/configs/to_instances/cg_1 ./dat/configs/pulse/cg_${} 1
+./bin/main ./dat/configs/to_instances/cg_1 ./dat/configs/pulse/cg_${SLURM_ARRAY_TASK_ID} 1
 
 echo "===>> All Done!"
 
