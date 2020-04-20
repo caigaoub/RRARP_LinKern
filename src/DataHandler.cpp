@@ -32,7 +32,7 @@ void DataHandler::parse(string filename) {
 
 	_all_obps.resize(_nb_targets);
 	vector<string> emptystr(_nb_obps);
-	string::size_type sz;
+	string::size_type sz = 0;
 	ObsPoint obp; 
 	for (int i = 0; i < _nb_targets; i++){
 		for(int j = 0; j < _nb_obps; j++){

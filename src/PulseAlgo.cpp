@@ -2,32 +2,26 @@
 #define _USE_MATH_DEFINES
 #include<bits/stdc++.h>
 
+void Pulse::set_parameters(const int source, const int sink, const double demand_pct){
+	this->_source = source;
+	this->_sink = sink;
+	this->_demand_pct = demand_pct;
+	this->_demand = this->_total_reward * this->_demand_pct;
+}
 
-void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps, string graphfile, int source, int sink){
+void Pulse::initialize_triGraph(DataHandler& dataset, int tar, int lmt_obps, string graphfile){
 	this->_dataset = &dataset;
 	this->_taridx = tar;
 	this->_graphsize = lmt_obps + 16;
-	this->_source = source;
-	this->_sink = sink;
 
 	_rewards_etd.resize(_graphsize, 0);
 	_total_reward = 0.0;
 	for(int i=0; i< _graphsize; i++){
 		_rewards_etd[i] = _dataset->_all_obps[_taridx][i]._rewVal;
 		_total_reward += _rewards_etd[i];
-		// if(_rewards_etd[i] > 0)
-		// 	cout << _rewards_etd[i] << " ";
 	}
-
-	// cout << '\n';
-	// cout << _total_reward << endl;
-
-	_budget_pct = _dataset->_bdg_rewards_ratio[_taridx];
-	_budget_pct = 1.0;
-
-	_budget = _total_reward * _budget_pct;
-	// cout << "total reward: " << _total_reward << '\t' ;
-	// cout << "_budget: " << _budget << endl;
+	// _demand_pct = _dataset->_bdg_rewards_ratio[_taridx];
+	// _demand = _total_reward * _demand_pct;
 
 	fstream file(graphfile);
 	if (!file) {
@@ -39,7 +33,7 @@ void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps
 	for(int i=0; i<_graphsize; i++)
 		_tmp_graph[i].resize(_graphsize, false);
 
-	string::size_type sz;
+	string::size_type sz = 0;
 	int nb_edges = -1;
 	for (int i = 0; i < 6; i++){
 		file >> nb_edges;
@@ -88,146 +82,8 @@ void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps
 	_L2.resize(_graphsize,make_pair(INF, 0.0));
 	_L3.resize(_graphsize,make_pair(INF, 0.0));
 
-
-	// for(int i=0; i < _graphsize; i++){
-	// 	_domi_labels[i].resize()
-	// }
-
-	// for(int i=0; i < _graphsize ; i++){
-	// 	for(int j=0; j < _graphsize; j++){
-	// 		cout << _tmp_graph[i][j] << '\t';
-	// 	}	
-	// 	cout << '\n';
-	// }
-
 }
 
-void Pulse::initialize(DataHandler& dataset, int tar, int nb_dstzn, int lmt_obps){
-	this->_dataset = &dataset;
-	this->_taridx = tar;
-	this->_graphsize = lmt_obps + 2;
-	this->_source = 0;
-	this->_sink = lmt_obps + 1;
-
-	_rewards_etd.resize(_graphsize, 0);
-	_total_reward = 0.0;
-	for(int i=1; i<= lmt_obps; i++){
-		_rewards_etd[i] = _dataset->_all_obps[_taridx][i-1]._rewVal;
-		_total_reward += _rewards_etd[i];
-		// cout << _rewards_etd[i] << " ";
-	}
-
-	// cout << '\n';
-	// cout << _total_reward << endl;
-
-	_budget_pct = _dataset->_bdg_rewards_ratio[_taridx];
-	_budget_pct = 0.5;
-
-	_budget = _total_reward * _budget_pct;
-	// cout << "total reward: " << _total_reward << '\t' ;
-	// cout << "_budget: " << _budget << endl;
-
-	_graph.resize(_graphsize);
-	for(int i=0; i < _graphsize; i++)
-		_graph[i].resize(_graphsize, INF);
-	Vertex p_i, p_j;
-	for(int i=1; i <= lmt_obps; i++){
-		for(int j=i+1; j <= lmt_obps; j++){
-			p_i._x = _dataset->_target_locs[_taridx]._x + _dataset->_all_obps[_taridx][i-1]._rad * cos(_dataset->_all_obps[_taridx][i-1]._angle);
-			p_i._y = _dataset->_target_locs[_taridx]._y + _dataset->_all_obps[_taridx][i-1]._rad * sin(_dataset->_all_obps[_taridx][i-1]._angle);
-			p_j._x = _dataset->_target_locs[_taridx]._x + _dataset->_all_obps[_taridx][j-1]._rad * cos(_dataset->_all_obps[_taridx][j-1]._angle);
-			p_j._y = _dataset->_target_locs[_taridx]._y + _dataset->_all_obps[_taridx][j-1]._rad * sin(_dataset->_all_obps[_taridx][j-1]._angle);
-			double dist = eucl_distance(p_i, p_j);
-			if(dist < 0.5){
-				_graph[i][j] = dist;
-				_graph[j][i] = dist;	
-			}	
-		}	
-	}
-
-	this->_nb_tnps = nb_dstzn;
-	_tnps_tar.resize(_nb_tnps);
-	double subarc_angle = 2.0 * M_PI /(double)_nb_tnps;
-	for(int i =0; i < _nb_tnps; i++){
-		_tnps_tar[i]._x = _dataset->_radii[_taridx] * cos(i * subarc_angle) + _dataset->_target_locs[_taridx]._x;
-		_tnps_tar[i]._y = _dataset->_radii[_taridx] * sin(i * subarc_angle) + _dataset->_target_locs[_taridx]._y;
-		// _tnps_tar[i].print();
-	}
-
-	// _domi_labels.resize(_graphsize, make_pair(INF, 0));
-
-}
-
-
-void Pulse::initialize_generalgraph(vector<vector<double>>& adjmatx, vector<double>& rewards, int size, double budget_pct){
-	this->_graphsize = size;
-	this->_source = 0;
-	this->_sink = size -1;
-
-	_rewards_etd = rewards;
-	_total_reward = 0.0;
-	for(int i=0; i< size; i++){
-		// cout << _rewards_etd[i] << " ";
-		_total_reward += _rewards_etd[i];
-	}
-	// cout << "total " << _total_reward << endl;
-	_budget_pct = budget_pct;
-	_budget = _total_reward * _budget_pct;
-	_graph = adjmatx;
-
-	for(int i=0; i<size; i++){
-		for(int j=0; j<size; j++){
-			if (_graph[i][j] == 0){
-				_graph[i][j] = INF;
-			}
-			// cout << _graph[i][j] << " ";
-		}
-		// cout << '\n';
-	}
-	// _domi_labels.resize(_graphsize, make_pair(INF, 0));
-	
-}
-
-void Pulse::update_graph(Vertex& entry, Vertex& exit){
-		// source and sink
-	// cout << "entry and exit :" << endl;
-	// entry.print();
-	// exit.print();
-	Vertex p;
-	for(int i=1; i <= _graphsize-2; i++){
-		p._x = _dataset->_target_locs[_taridx]._x + _dataset->_all_obps[_taridx][i-1]._rad * cos(_dataset->_all_obps[_taridx][i-1]._angle);
-		p._y = _dataset->_target_locs[_taridx]._y + _dataset->_all_obps[_taridx][i-1]._rad * sin(_dataset->_all_obps[_taridx][i-1]._angle);
-		// p.print();
-		double dist = eucl_distance(entry, p);
-		if(dist < 0.3){
-			_graph[_source][i] = dist;
-			_graph[i][_source] = dist;
-		}else{
-			_graph[_source][i] = INF;
-			_graph[i][_source] = INF;
-		}
-		dist = eucl_distance(exit, p);
-		if(dist < 0.3){
-			_graph[_sink][i] = dist;
-			_graph[i][_sink] = dist;
-		}else{
-			_graph[_sink][i] = INF;
-			_graph[i][_sink] = INF;
-		}
-	}
-
-
-	// for(int i=0; i < _graphsize ; i++){
-	// 	for(int j=0; j < _graphsize; j++){
-	// 		cout << _graph[i][j] << '\t';
-	// 	}	
-	// 	cout << '\n';
-	// }
-}
-
-double Pulse::eucl_distance(const Vertex& p1, const Vertex& p2){
-	return sqrt(pow(p1._x -p2._x,2) + pow(p1._y - p2._y,2));
-}
 
 void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward, double pathrisk, bool log_on){
 	if(_source == _sink)
@@ -244,15 +100,11 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 		cout << "], path reward: " << pathreward << ", path risk: " << pathrisk <<  ", consider moving to node " << curnode <<  endl;
 	}
 	if(curnode == _sink ){
-		// if(_budget - pathreward< 0.2)
-		// 	cout << _budget - pathreward << endl;
-		if(pathreward >= _budget && pathrisk + _graph[curpath.back()][_sink] < _curbest_objval){
+		if(pathreward >= _demand && pathrisk + _graph[curpath.back()][_sink] < _curbest_objval){
 			_curbest_objval = pathrisk + _graph[curpath.back()][_sink];
 			curpath.push_back(_sink);
 			_curbest_path.clear();
 			_curbest_path = curpath;
-			// cout << "obj* (sink), " << _curbest_objval << " @iterations " << _iterations << endl;
-
 			if(log_on){
 				cout << "!!!!!!!GET AN IMPROVEMENT: new obj: " << _curbest_objval << '\t' << " new path: [" << endl;
 				for(unsigned i=0; i<_curbest_path.size(); i++){
@@ -287,7 +139,7 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 				cout << "intersected? " << flag << '\n';
 			}
 			double add_reward = (flag)? 0.0:_rewards_lbrpaths_sink[curnode]-_rewards_etd[curnode];
-			if(pathreward + _rewards_etd[curnode] + add_reward +0.000001>= _budget){// partial path expansion 
+			if(pathreward + _rewards_etd[curnode] + add_reward +0.000001 >= _demand){
 				if(log_on){
 					cout << "... ENOUGH BUDGET IS MET ... Pick extended path ";
 				}
@@ -375,7 +227,7 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 		vector<int> curpath = {_source};
 		for(int ngb=0; ngb<_graphsize; ngb++){
 			if(_graph[curnode][ngb] < 10000.0 ){ // && abs(_rewards_etd[ngb]) > 0.00001
-				cout << "... Propogate from source " << _source << " to node " << ngb << endl;
+				// cout << "... Propogate from source " << _source << " to node " << ngb << endl;
 				this->recursive_search(ngb, curpath, 0.0, 0.0, log_on);
 			}
 		}
@@ -446,7 +298,7 @@ bool Pulse::is_intersected(vector<int>& vec1, vector<int>& vec2){
 
 
 void Pulse::calc_leastrisk_sink(){
-	cout << "====>>>> Algorithm iniialization: least risky path to sink " << endl;
+	// cout << "====>>>> Algorithm iniialization: least risky path to sink " << endl;
 	vector<bool> visited(_graphsize, false);
 	// int nb_voidpoints = 0;
 	// for(int i=0; i<_graphsize; i++){
@@ -475,7 +327,8 @@ void Pulse::calc_leastrisk_sink(){
 		}
 		// cout << "u = " << u << endl;
 		if(u==-1){
-			cerr << "the orginal graph is disconnected" << endl;
+			cout << "the orginal graph is disconnected" << endl;
+			exit(0);
 		}
 		visited[u] = true;
 		for(int v=0; v<_graphsize; v++){
@@ -508,9 +361,10 @@ void Pulse::calc_leastrisk_sink(){
 			cout << '\n';
 		}
 	}
-	// _budget = 10.0 * _rewards_lbrpaths_sink[_source];
-	if (_budget <= _rewards_lbrpaths_sink[_source]){
-		cerr << "Reward on min-risk path already satisfies the demand!!!" << endl;
+	// _demand = 10.0 * _rewards_lbrpaths_sink[_source];
+	if (_demand <= _rewards_lbrpaths_sink[_source]){
+		cout << "Reward on min-risk path already satisfies the demand!!!" << endl;
+		// exit(0);
 	}
 }
 
@@ -576,6 +430,44 @@ pair<double, vector<int>> Pulse::quick_wrapup(const vector<int>& visited, int st
 	return make_pair(dist[_sink], optpath);
 }
 
+
+
+void Pulse::initialize_generalgraph(vector<vector<double>>& adjmatx, vector<double>& rewards, int size, double budget_pct){
+	this->_graphsize = size;
+	this->_source = 0;
+	this->_sink = size -1;
+
+	_rewards_etd = rewards;
+	_total_reward = 0.0;
+	for(int i=0; i< size; i++){
+		// cout << _rewards_etd[i] << " ";
+		_total_reward += _rewards_etd[i];
+	}
+	// cout << "total " << _total_reward << endl;
+	_demand_pct = budget_pct;
+	_demand = _total_reward * _demand_pct;
+	_graph = adjmatx;
+
+	for(int i=0; i<size; i++){
+		for(int j=0; j<size; j++){
+			if (_graph[i][j] == 0){
+				_graph[i][j] = INF;
+			}
+			// cout << _graph[i][j] << " ";
+		}
+		// cout << '\n';
+	}
+	// _domi_labels.resize(_graphsize, make_pair(INF, 0));
+	
+}
+
+
+double Pulse::eucl_distance(const Vertex& p1, const Vertex& p2){
+	return sqrt(pow(p1._x -p2._x,2) + pow(p1._y - p2._y,2));
+}
+
+
+
 double Pulse::calc_path_rewards(vector<int> & path){
 	double total_reward = 0.0;
 	for(unsigned i=0; i < path.size(); i++){
@@ -586,7 +478,7 @@ double Pulse::calc_path_rewards(vector<int> & path){
 
 
 void Pulse::print_opt_sol(){
-	cout << " =====>>> total reward: " << _total_reward << ", Demand: " << _budget << ", Reward on min-risk path: " << _rewards_lbrpaths_sink[_source] << endl;
+	cout << " =====>>> total reward: " << _total_reward << ", Demand: " << _demand << ", Reward on min-risk path: " << _rewards_lbrpaths_sink[_source] << endl;
 	cout << " =====>>> optimal obj value: " << _curbest_objval << ", collected reward: " << calc_path_rewards(_curbest_path) << endl; 
 	cout << "          optimal path [";
 	double verified_obj = 0;

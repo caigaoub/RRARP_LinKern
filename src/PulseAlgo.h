@@ -1,5 +1,7 @@
 #ifndef _PULSEALGO_H_
 #define _PULSEALGO_H_
+
+
 #include "DataHandler.h"
 #include <tuple>
 #include <cmath>
@@ -19,8 +21,8 @@ public:
 	vector<vector<bool>>					_tmp_graph;
 
 	double 									_total_reward = 0;
-	double 									_budget_pct = -1.0;
-	double 									_budget = -1.0;
+	double 									_demand_pct = INF;
+	double 									_demand = INF;
 	int										_source = 0;
 	int 									_sink = -1;
 	double 									_curbest_objval = INF;
@@ -41,16 +43,14 @@ public:
 	vector<pair<double,double>>				_L2;
 	vector<pair<double,double>>				_L3;
 
-	// vector<pair<double,double>>		_domi_labels;
-
 	Pulse() {};
 	~Pulse() {};
 
-	void initialize_generalgraph(vector<vector<double>>&, vector<double>&, int, double);
-	void initialize(DataHandler&, int, int, int);
-	void initialize(DataHandler&, int, int, int, string, int, int);
 
-	void update_graph(Vertex&, Vertex&);
+
+	void initialize_generalgraph(vector<vector<double>>&, vector<double>&, int, double);
+	void initialize_triGraph(DataHandler&, int, int, string);
+	void set_parameters(const int, const int, const double);
 	double eucl_distance(const Vertex&, const Vertex&);
 	Vertex get_turnpoint(int i){ return _tnps_tar[i];};
 	void calc_leastrisk_sink();
