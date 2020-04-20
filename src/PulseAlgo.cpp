@@ -6,13 +6,13 @@ void Pulse::set_parameters(const int source, const int sink, const double demand
 	this->_source = source;
 	this->_sink = sink;
 	this->_demand_pct = demand_pct;
-	this->_demand = this->_total_reward * this->_demand_pct;
+	// this->_demand = this->_total_reward * this->_demand_pct;
 }
 
 void Pulse::initialize_triGraph(DataHandler& dataset, int tar, int lmt_obps, string graphfile){
 	this->_dataset = &dataset;
 	this->_taridx = tar;
-	this->_graphsize = lmt_obps + 16;
+	this->_graphsize = lmt_obps;
 
 	_rewards_etd.resize(_graphsize, 0);
 	_total_reward = 0.0;
@@ -85,9 +85,15 @@ void Pulse::initialize_triGraph(DataHandler& dataset, int tar, int lmt_obps, str
 }
 
 
-void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward, double pathrisk, bool log_on){
+void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward, double pathrisk, ProgTime& timeout, bool log_on){
 	if(_source == _sink)
 		cerr << "Current code does not work when source is same as sink!! Regenerate the grpah "<< endl;
+	if(true){
+		timeout.end_prog();
+		if(timeout._elapsed_secs >= 600.0){
+			return;
+		}
+	}
 	_iterations++;
 	// if(_iterations > 50)
 	// 	exit(0);
@@ -205,7 +211,7 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 
 									cout << ']' << endl;
 								}								
-								this->recursive_search(ngb, newpath, newpathreward, newpathrisk, log_on);
+								this->recursive_search(ngb, newpath, newpathreward, newpathrisk, timeout, log_on);
 							}else{
 								if(log_on)
 									cout << "... " << ngb << " is already visited" << endl;
@@ -228,7 +234,7 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 		for(int ngb=0; ngb<_graphsize; ngb++){
 			if(_graph[curnode][ngb] < 10000.0 ){ // && abs(_rewards_etd[ngb]) > 0.00001
 				// cout << "... Propogate from source " << _source << " to node " << ngb << endl;
-				this->recursive_search(ngb, curpath, 0.0, 0.0, log_on);
+				this->recursive_search(ngb, curpath, 0.0, 0.0, timeout, log_on);
 			}
 		}
 	}
@@ -361,7 +367,9 @@ void Pulse::calc_leastrisk_sink(){
 			cout << '\n';
 		}
 	}
-	// _demand = 10.0 * _rewards_lbrpaths_sink[_source];
+	_demand =  (_total_reward - _rewards_lbrpaths_sink[_source]) * _demand_pct + _rewards_lbrpaths_sink[_source];
+
+
 	if (_demand <= _rewards_lbrpaths_sink[_source]){
 		cout << "Reward on min-risk path already satisfies the demand!!!" << endl;
 		// exit(0);
@@ -489,3 +497,12 @@ void Pulse::print_opt_sol(){
 	}
 	cout << "]\n";
 }
+
+
+// void Pulse::write_opt_sol(){
+// 	ofstream file;
+// 	string cur_dir = "/projects/academic/josewalt/caigao/RRARP_LinKern/ret/pulse_out/";
+//     file.open(cur_dir + name_only + "_algo_" + to_string(algo_idx) + ".FisTest_" + to_string(fischetti_on));
+// 	file << "---> instance_name: " << instance << '\n';
+// 	file.close();
+// }

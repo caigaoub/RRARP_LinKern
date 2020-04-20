@@ -193,31 +193,33 @@ if __name__ == "__main__":
 	'''two depots, n target areas, reward pct, all observation points, and reward values on Obser. point '''
 	departure, arrival, tar_locs, tar_rews, OBPX, OBPY, OBPREW = read_instance(instance)
 	tar_idx = 4
-	plot_ObP_graph(tar_locs[tar_idx], OBPX[tar_idx][0:nb_ObPs], OBPY[tar_idx][0:nb_ObPs], OBPREW[tar_idx][0:nb_ObPs])
+	# plot_ObP_graph(tar_locs[tar_idx], OBPX[tar_idx][0:nb_ObPs], OBPY[tar_idx][0:nb_ObPs], OBPREW[tar_idx][0:nb_ObPs])
 	# plot_ObP_graph222()
 	# plot_ObP_3D_surface()
 
 
 
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_200'
-	# write_triGraph(instance, filename, 16+200)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_150'
-	# write_triGraph(instance, filename, 16+150)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_120'
-	# write_triGraph(instance, filename, 16+120)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_100'
-	# write_triGraph(instance, filename, 16+100)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_80'
-	# write_triGraph(instance, filename, 16+80)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_60'
-	# write_triGraph(instance, filename, 16+60)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_50'
-	# write_triGraph(instance, filename, 16+50)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_40'
-	# write_triGraph(instance, filename, 16+40)
-	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_30'
-	# write_triGraph(instance, filename, 16+30)
-	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_15'
-	write_triGraph(instance, filename, 16+15)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_200'
+	write_triGraph(instance, filename, 200)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_180'
+	write_triGraph(instance, filename, 180)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_150'
+	write_triGraph(instance, filename, 150)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_120'
+	write_triGraph(instance, filename, 120)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_100'
+	write_triGraph(instance, filename, 100)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_80'
+	write_triGraph(instance, filename, 80)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_60'
+	write_triGraph(instance, filename, 60)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_50'
+	write_triGraph(instance, filename, 50)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_40'
+	write_triGraph(instance, filename, 40)
+	filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_30'
+	write_triGraph(instance, filename, 30)
+	# filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/n_6_h_1.graph_15'
+	# write_triGraph(instance, filename, 16+15)
 
 

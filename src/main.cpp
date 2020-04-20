@@ -7,11 +7,13 @@
 #include <sys/stat.h>
 #include <vector>
 #include "PulseAlgo.h"
-#include "ProgTime.h"
-#include<thread>
+#include <thread>
+#include <fstream>
+#include <sstream>
+
 using namespace std;
 
-void func_parr(DataHandler& dataset_, int nb_obps, string cur_dir, int source, int sink, double demandPCT){
+double func_parr(DataHandler& dataset_, int nb_obps, string cur_dir, int source, int sink, double demandPCT){
 	// cout << "-------------------------------------" << endl;
 	// cout << "i = " << source << ", j = " << sink << endl;
 	Pulse  test_;
@@ -20,12 +22,15 @@ void func_parr(DataHandler& dataset_, int nb_obps, string cur_dir, int source, i
 	test_.set_parameters(source, sink, demandPCT);
 	test_.calc_leastrisk_sink();
 	vector<int> path;
-	// ProgTime test_time;
-	// test_time.start_prog();
-	test_.recursive_search(source, path, 0, 0, 0);	
-	// test_time.end_prog();
-	// cout << " =====>>>> Time: " << test_time._elapsed_secs << endl;
+	ProgTime test_time;
+	test_time.start_prog();
+	ProgTime timelimit;
+	timelimit.start_prog();
+	test_.recursive_search(source, path, 0, 0,timelimit, 0);	
+	test_time.end_prog();
+	cout << " =====>>>> Time: " << test_time._elapsed_secs << endl;
 	// test_.print_opt_sol();
+	return test_time._elapsed_secs;
 }
 
 
@@ -38,7 +43,7 @@ int main(int argc, const char* argv[]) {
 	// const int source = atoi(argv[3]);
 	// const int sink = atoi(argv[4]);
 	const double demandPCT = atof(argv[3]);
-	// const int log_on = atoi(argv[4]);
+	const int is_server = atoi(argv[4]);
 
 
 	fstream file(configfile);
@@ -49,8 +54,12 @@ int main(int argc, const char* argv[]) {
 	string instance_name_only;
 	file >> instance_name_only;
 	file.close();
-	// string cur_dir = "/projects/academic/josewalt/caigao/RRARP_LinKern/dat/";
-    string cur_dir = "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/";
+	string cur_dir = " ";
+	if(is_server){
+		cur_dir = "/projects/academic/josewalt/caigao/RRARP_LinKern/dat/";
+	}else{
+	    cur_dir = "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/";
+	}
 	struct stat buffer;
   	if(stat (cur_dir.c_str(), &buffer) != 0){
   		cerr << " Path of instances does not exist!! (in main.cpp:line 29) " << endl;
@@ -59,10 +68,7 @@ int main(int argc, const char* argv[]) {
 	DataHandler dataset_;
 	dataset_.parse(instance_wPath);
 
-    /*===================== start parallel matching  ================================**/
-    unsigned n_available = std::thread::hardware_concurrency();
-    int nr_threads = (int)(n_available-1);
-//    unsigned nr_threads = 1;
+
     vector<pair<int,int>> idxset;
     for(int i =0; i<16; i++){
     	for(int j=0; j<16; j++){
@@ -70,22 +76,57 @@ int main(int argc, const char* argv[]) {
     			idxset.push_back(make_pair(i,j));
     	}
     }
-    for(int i=0; i < idxset.size(); i++)
+    double total_time = 0.0;
+    for(unsigned int i=0; i<idxset.size(); i++){
     	cout << idxset[i].first << ", " << idxset[i].second << endl;
-    int itr =0;
-    int size = (int)idxset.size();
-    while(itr < size){
-    	vector<thread> threads;
-    	int cores = min(nr_threads, size - itr);
-		for (int k = 0; k < cores; ++k) {
-    	  	cout << idxset[itr].first << ", " << idxset[itr].second <<endl;
-		    threads.push_back(thread(func_parr, ref(dataset_), nb_obps, cur_dir, idxset[itr].first, idxset[itr].second, demandPCT));
-		    itr++;
-	    }
-   	    for(auto &t : threads){ // Join the threads with the main thread
-	        t.join();
-	    }
+		double temp_time = func_parr(dataset_, nb_obps, cur_dir, idxset[i].first, idxset[i].second, demandPCT);
+		total_time += temp_time;
     }
+
+    total_time /= (double)idxset.size();
+
+    cout << "time: " << total_time <<  endl;
+
+	ofstream file2;
+	string out_dir = " ";
+	if(is_server){
+		out_dir = "/projects/academic/josewalt/caigao/RRARP_LinKern/ret/pulse_out/";
+	}else{
+		out_dir	= "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/ret/pulse_out/";
+	}
+    file2.open(out_dir + "triGraph_" + to_string(nb_obps) + "_" +to_string(demandPCT));
+	file2 << "time: " << total_time << '\n';
+	file2.close();
+
+
+//     /*===================== start parallel matching  ================================**/
+//     unsigned n_available = std::thread::hardware_concurrency();
+//     int nr_threads = (int)(n_available-1);
+// //    unsigned nr_threads = 1;
+//     vector<pair<int,int>> idxset;
+//     for(int i =0; i<16; i++){
+//     	for(int j=0; j<16; j++){
+//     		if(i != j)
+//     			idxset.push_back(make_pair(i,j));
+//     	}
+//     }
+//     for(int i=0; i < idxset.size(); i++)
+//     	cout << idxset[i].first << ", " << idxset[i].second << endl;
+//     int itr =0;
+//     int size = (int)idxset.size();
+//     while(itr < size){
+//     	vector<thread> threads;
+//     	int cores = min(nr_threads, size - itr);
+// 		for (int k = 0; k < cores; ++k) {
+//     	  	cout << idxset[itr].first << ", " << idxset[itr].second <<endl;
+// 		    threads.push_back(thread(func_parr, ref(dataset_), nb_obps, cur_dir, idxset[itr].first, idxset[itr].second, demandPCT));
+// 		    itr++;
+// 	    }
+//    	    for(auto &t : threads){ // Join the threads with the main thread
+// 	        t.join();
+// 	    }
+//     }
+
 
 
 

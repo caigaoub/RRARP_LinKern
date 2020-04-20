@@ -9,6 +9,7 @@
 #include <deque>
 #include <vector>
 #include <numeric>
+#include "ProgTime.h"
 #define INF numeric_limits<double>::infinity()
 
 
@@ -43,6 +44,8 @@ public:
 	vector<pair<double,double>>				_L2;
 	vector<pair<double,double>>				_L3;
 
+	
+
 	Pulse() {};
 	~Pulse() {};
 
@@ -58,7 +61,7 @@ public:
 	pair<double, vector<int>> quick_wrapup(const vector<int>& forbidden_nodes, int);
 	bool check_dominance(int node, double pathrisk, double pathreward);
 	void update_domilabels(int node, double pathrisk, double pathreward);
-	void recursive_search(int, vector<int>, double, double, bool);
+	void recursive_search(int, vector<int>, double, double, ProgTime&, bool);
 	bool is_intersected(vector<int>&, vector<int>&);
 	void print_opt_sol();
 
