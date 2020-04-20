@@ -25,12 +25,10 @@
 ##echo "SLURM_ARRAY_TASK_ID"=$SLURM_ARRAY_TASK_ID
 ##echo "working directory = "$SLURM_SUBMIT_DIR
 
-# NPROCS=`srun --nodes=${SLURM_NNODES}$ bash -c 'hostname' |wc -l`
-# echo "NPROCS="$NPROCS
+NPROCS=`srun --nodes=${SLURM_NNODES}$ bash -c 'hostname' |wc -l`
+echo "NPROCS="$NPROCS
 
 echo "===>> Begin!"
-
 ./bin/main ./dat/configs/to_instances/cg_1 ./dat/configs/pulse/cg_${SLURM_ARRAY_TASK_ID} 1
-
 echo "===>> All Done!"
 
