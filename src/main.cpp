@@ -82,9 +82,8 @@ int main(int argc, const char* argv[]) {
 
     vector<pair<int,int>> idxset;
     for(int i =0; i<16; i++){
-    	for(int j=0; j<16; j++){
-    		if(i != j)
-    			idxset.push_back(make_pair(i,j));
+    	for(int j=i+1; j<16; j++){
+    		idxset.push_back(make_pair(i,j));
     	}
     }
     double total_time = 0.0;

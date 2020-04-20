@@ -367,7 +367,7 @@ void Pulse::calc_leastrisk_sink(){
 			cout << '\n';
 		}
 	}
-	_demand =  (_total_reward/2.0 - _rewards_lbrpaths_sink[_source]) * _demand_pct + _rewards_lbrpaths_sink[_source];
+	_demand =  (_total_reward/3.0 - _rewards_lbrpaths_sink[_source]) * _demand_pct + _rewards_lbrpaths_sink[_source];
 
 	if (_demand <= _rewards_lbrpaths_sink[_source]){
 		cout << "Reward on min-risk path already satisfies the demand!!!" << endl;
