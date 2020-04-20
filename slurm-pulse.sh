@@ -7,12 +7,12 @@
 #SBATCH  --nodes=1
 #SBATCH  --ntasks-per-node=12
 #SBATCH --mem=120000
-#SBATCH  --array=1-100
+#SBATCH  --array=1-1
 #SBATCH  --job-name="pulse"
 #SBATCH  --output="./dat/console/pulse-%a.out"
-#SBATCH  --error="./ret/console/pulse-%a.err"
-#SBATCH --mail-user=caigao@buffalo.edu
-#SBATCH --mail-type=ALL
+#SBATCH  --error="./dat/console/pulse-%a.err"
+##SBATCH --mail-user=caigao@buffalo.edu
+##SBATCH --mail-type=ALL
 ##SBATCH --exclude=cpn-p26-[13-18]
 ##SBATCH --requeue
 
@@ -30,7 +30,7 @@ echo "NPROCS="$NPROCS
 
 echo "===>> Begin!"
 
-./bin/main ./dat/configs/pulse/cg_${SLURM_ARRAY_TASK_ID}
+#./bin/main ./dat/configs/to_instances/cg_1 ./dat/configs/pulse/cg_${} 1
 
 echo "===>> All Done!"
 
