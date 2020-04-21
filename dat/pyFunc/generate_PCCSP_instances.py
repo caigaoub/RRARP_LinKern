@@ -39,8 +39,8 @@ def plot_ObP_graph(center, obpx, obpy, obprew):
 		ax.annotate(str(i), (x[i]+0.02, y[i]-0.02), horizontalalignment='right', verticalalignment='top',size=10)
 	plt.show()
 
-def generate_trigraph_random():
-	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/'
+def generate_trigraph_random(dir):
+	
 	total_insts = 1000
 	nb_obps = 100
 	filename = 'trigraph_k16_'
@@ -54,12 +54,16 @@ def generate_trigraph_random():
 		ObPx = []
 		ObPy = []
 		ObPw = [] # reward
+		R = []
+		A = []
 		center =  [1.0, 1.0, 1.0]
 		'''write K boundary points '''
 		for j in range(0, K):
 			r = 1.0
 			angle = round(2.0*np.pi/K * j *precision)/precision
 			rewp = 0
+			R.append(r)
+			A.append(angle)
 			x = r * math.cos(angle) + center[0]
 			y = r *math.sin(angle) + center[1]
 			ObPx.append(x)
@@ -70,6 +74,8 @@ def generate_trigraph_random():
 			r = round(math.sqrt(np.random.uniform(0.,0.9))*precision)/precision
 			angle = round(np.random.uniform(0,2.0*np.pi)*precision)/precision
 			rewp = round(np.random.uniform(0.1,0.2)*precision)/precision
+			R.append(r)
+			A.append(angle)
 			x = r * math.cos(angle) + center[0]
 			y = r * math.sin(angle) + center[1]
 			ObPx.append(x)
@@ -79,6 +85,8 @@ def generate_trigraph_random():
 		r = round(math.sqrt(np.random.uniform(0.0,0.9))*precision)/precision
 		angle = round(np.random.uniform(0,2.0*np.pi)*precision)/precision
 		rewp = round(np.random.uniform(0.1,0.2)*precision)/precision
+		R.append(r)
+		A.append(angle)
 		x = r * math.cos(angle) + center[0]
 		y = r * math.sin(angle) + center[1]
 		ObPx.append(x)
@@ -92,8 +100,8 @@ def generate_trigraph_random():
 
 		''' write reward on nodes '''
 		for i in range(len(ObPw)-1):
-			file.write(str(i)+':'+ str(ObPw[i])+'\t')
-		file.write(str(len(ObPw)-1)+':'+str(ObPw[-1])+'\n')
+			file.write(str(i)+':'+str(R[i])+':' +str(A[i])+':'+str(ObPw[i])+'\t')
+		file.write(str(len(ObPw)-1)+':'+str(R[-1])+':' +str(A[-1])+':'+str(ObPw[-1])+'\n')
 
 		''' write weight info on edges '''
 		for e in triang.edges:
@@ -104,10 +112,9 @@ def generate_trigraph_random():
 			dist = round(dist*precision)/precision
 			file.write(str(e[0]) + ':' + str(e[1]) + ':' + str(dist) + '\t')
 		file.close()
-		# print(x)
-		# print(y)
 		# plot_ObP_graph(center, x, y, ObPw)
 
 if __name__ == "__main__":
-	generate_trigraph_random()
+	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/'
+	generate_trigraph_random(dir)
 

@@ -29,6 +29,7 @@ void Pulse::read_PCCSP_instance(string filename){
 		auto pos = tempstr.find_first_of(":");
 		string temp = tempstr.substr(0, pos);
 		int node = stoi(temp.substr(sz));
+		pos = tempstr.find_last_of(":");
 		temp = tempstr.substr(pos+1, tempstr.size());
 		double rewval = stod(temp.substr(sz));
 		// cout << node << ", " << rewval << endl;
