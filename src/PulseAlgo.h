@@ -10,6 +10,7 @@
 #include <vector>
 #include <numeric>
 #include "ProgTime.h"
+#include <string>
 #define INF numeric_limits<double>::infinity()
 
 
@@ -44,13 +45,14 @@ public:
 	vector<pair<double,double>>				_L2;
 	vector<pair<double,double>>				_L3;
 
+	bool									_status = true;
 	
 
 	Pulse() {};
 	~Pulse() {};
 
 
-
+	void read_PCCSP_instance(string);
 	void initialize_generalgraph(vector<vector<double>>&, vector<double>&, int, double);
 	void initialize_triGraph(DataHandler&, int, int, string);
 	void set_parameters(const int, const int, const double);

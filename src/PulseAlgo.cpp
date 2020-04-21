@@ -9,79 +9,60 @@ void Pulse::set_parameters(const int source, const int sink, const double demand
 	// this->_demand = this->_total_reward * this->_demand_pct;
 }
 
-void Pulse::initialize_triGraph(DataHandler& dataset, int tar, int lmt_obps, string graphfile){
-	this->_dataset = &dataset;
-	this->_taridx = tar;
-	this->_graphsize = lmt_obps;
 
-	_rewards_etd.resize(_graphsize, 0);
-	_total_reward = 0.0;
-	for(int i=0; i< _graphsize; i++){
-		_rewards_etd[i] = _dataset->_all_obps[_taridx][i]._rewVal;
-		_total_reward += _rewards_etd[i];
-	}
-	// _demand_pct = _dataset->_bdg_rewards_ratio[_taridx];
-	// _demand = _total_reward * _demand_pct;
-
-	fstream file(graphfile);
+void Pulse::read_PCCSP_instance(string filename){
+	// this->_dataset = &dataset;
+	// this->_taridx = tar;
+	fstream file(filename);
 	if (!file) {
-		cerr << "ERROR: could not open file '" << graphfile << "' for reading'" << endl;
+		cerr << "ERROR: could not open file '" << filename << "' for reading'" << endl;
 		throw(-1);
 	}
+	int _nb_edges = -1;
+	file >> _graphsize >> _nb_edges;
 
-	_tmp_graph.resize(_graphsize);
-	for(int i=0; i<_graphsize; i++)
-		_tmp_graph[i].resize(_graphsize, false);
-
+	_rewards_etd.resize(_graphsize, 0);
 	string::size_type sz = 0;
-	int nb_edges = -1;
-	for (int i = 0; i < 6; i++){
-		file >> nb_edges;
-		vector<string> emptystr(nb_edges);
-		for(int j = 0; j < nb_edges; j++){
-			file >> emptystr[j];
-			// cout << emptystr[j] << ' ';
-		}
-		// cout << "---------------------------" << endl;
-		if(i == tar){
-			for(int j = 0; j < nb_edges; j++){
-				auto pos = emptystr[j].find_first_of(":");
-				string temp = emptystr[j].substr(0, pos);
-				int u = stoi(temp.substr(sz));
-				string temp_left = emptystr[j].substr(pos+1, emptystr[j].size());
-				int v = stoi(temp_left.substr(sz));
-				// cout << " u, v = " << u << ", " << v << '\t';
-				_tmp_graph[u][v] = true;
-				_tmp_graph[v][u] = true;
-			}
-		}	
+	string tempstr = " ";
+	for (int i = 0; i < _graphsize; i++){
+		file >> tempstr;
+		auto pos = tempstr.find_first_of(":");
+		string temp = tempstr.substr(0, pos);
+		int node = stoi(temp.substr(sz));
+		temp = tempstr.substr(pos+1, tempstr.size());
+		double rewval = stod(temp.substr(sz));
+		// cout << node << ", " << rewval << endl;
+		_rewards_etd[node] = rewval;
+	}
+	
+	_total_reward = 0.0;
+	for(int i=0; i< _graphsize; i++){
+		_total_reward += _rewards_etd[i];
 	}
 
-	// exit(0);
 	_graph.resize(_graphsize);
-	for(int i=0; i < _graphsize; i++)
+	for(int i=0; i<_graphsize; i++)
 		_graph[i].resize(_graphsize, INF);
-	Vertex p_i, p_j;
-	for(int i=0; i < _graphsize; i++){
-		for(int j=i+1; j < _graphsize; j++){
-			if(_tmp_graph[i][j] == true){
-				p_i._x = _dataset->_target_locs[_taridx]._x + _dataset->_all_obps[_taridx][i]._rad * cos(_dataset->_all_obps[_taridx][i]._angle);
-				p_i._y = _dataset->_target_locs[_taridx]._y + _dataset->_all_obps[_taridx][i]._rad * sin(_dataset->_all_obps[_taridx][i]._angle);
-				p_j._x = _dataset->_target_locs[_taridx]._x + _dataset->_all_obps[_taridx][j]._rad * cos(_dataset->_all_obps[_taridx][j]._angle);
-				p_j._y = _dataset->_target_locs[_taridx]._y + _dataset->_all_obps[_taridx][j]._rad * sin(_dataset->_all_obps[_taridx][j]._angle);
-				double dist = eucl_distance(p_i, p_j);
-				_graph[i][j] = dist;
-				_graph[j][i] = dist;	
-			}	
-		}
-	}	
-	
+
+	for (int i = 0; i < _nb_edges; i++){
+		file >> tempstr;
+		auto pos = tempstr.find_first_of(":");
+		string temp = tempstr.substr(0, pos);
+		int s = stoi(temp.substr(sz));
+		string temp_left = tempstr.substr(pos+1, tempstr.size());
+		pos = temp_left.find_first_of(":");
+		temp = temp_left.substr(0, pos);
+		int t = stoi(temp.substr(sz));
+		temp = temp_left.substr(pos+1, temp_left.size());
+		double weight = stod(temp.substr(sz));
+		_graph[s][t] = weight;
+		_graph[t][s] = weight;
+		// cout << s << ", " << t << ", " << weight << endl;
+	}
+	// exit(0);
+
 	_domi_labels.resize(_graphsize);
 	
-	_L1.resize(_graphsize,make_pair(INF, 0.0));
-	_L2.resize(_graphsize,make_pair(INF, 0.0));
-	_L3.resize(_graphsize,make_pair(INF, 0.0));
-
 }
 
 
@@ -91,6 +72,7 @@ void Pulse::recursive_search(int curnode, vector<int> curpath, double pathreward
 	if(true){
 		timeout.end_prog();
 		if(timeout._elapsed_secs >= 600.0){
+			this->_status = false;
 			return;
 		}
 	}
@@ -466,6 +448,82 @@ void Pulse::initialize_generalgraph(vector<vector<double>>& adjmatx, vector<doub
 	}
 	// _domi_labels.resize(_graphsize, make_pair(INF, 0));
 	
+}
+
+
+void Pulse::initialize_triGraph(DataHandler& dataset, int tar, int lmt_obps, string graphfile){
+	this->_dataset = &dataset;
+	this->_taridx = tar;
+	this->_graphsize = lmt_obps;
+
+	_rewards_etd.resize(_graphsize, 0);
+	_total_reward = 0.0;
+	for(int i=0; i< _graphsize; i++){
+		_rewards_etd[i] = _dataset->_all_obps[_taridx][i]._rewVal;
+		_total_reward += _rewards_etd[i];
+	}
+	// _demand_pct = _dataset->_bdg_rewards_ratio[_taridx];
+	// _demand = _total_reward * _demand_pct;
+
+	fstream file(graphfile);
+	if (!file) {
+		cerr << "ERROR: could not open file '" << graphfile << "' for reading'" << endl;
+		throw(-1);
+	}
+
+	_tmp_graph.resize(_graphsize);
+	for(int i=0; i<_graphsize; i++)
+		_tmp_graph[i].resize(_graphsize, false);
+
+	string::size_type sz = 0;
+	int nb_edges = -1;
+	for (int i = 0; i < 6; i++){
+		file >> nb_edges;
+		vector<string> emptystr(nb_edges);
+		for(int j = 0; j < nb_edges; j++){
+			file >> emptystr[j];
+			// cout << emptystr[j] << ' ';
+		}
+		// cout << "---------------------------" << endl;
+		if(i == tar){
+			for(int j = 0; j < nb_edges; j++){
+				auto pos = emptystr[j].find_first_of(":");
+				string temp = emptystr[j].substr(0, pos);
+				int u = stoi(temp.substr(sz));
+				string temp_left = emptystr[j].substr(pos+1, emptystr[j].size());
+				int v = stoi(temp_left.substr(sz));
+				// cout << " u, v = " << u << ", " << v << '\t';
+				_tmp_graph[u][v] = true;
+				_tmp_graph[v][u] = true;
+			}
+		}	
+	}
+
+	// exit(0);
+	_graph.resize(_graphsize);
+	for(int i=0; i < _graphsize; i++)
+		_graph[i].resize(_graphsize, INF);
+	Vertex p_i, p_j;
+	for(int i=0; i < _graphsize; i++){
+		for(int j=i+1; j < _graphsize; j++){
+			if(_tmp_graph[i][j] == true){
+				p_i._x = _dataset->_target_locs[_taridx]._x + _dataset->_all_obps[_taridx][i]._rad * cos(_dataset->_all_obps[_taridx][i]._angle);
+				p_i._y = _dataset->_target_locs[_taridx]._y + _dataset->_all_obps[_taridx][i]._rad * sin(_dataset->_all_obps[_taridx][i]._angle);
+				p_j._x = _dataset->_target_locs[_taridx]._x + _dataset->_all_obps[_taridx][j]._rad * cos(_dataset->_all_obps[_taridx][j]._angle);
+				p_j._y = _dataset->_target_locs[_taridx]._y + _dataset->_all_obps[_taridx][j]._rad * sin(_dataset->_all_obps[_taridx][j]._angle);
+				double dist = eucl_distance(p_i, p_j);
+				_graph[i][j] = dist;
+				_graph[j][i] = dist;	
+			}	
+		}
+	}	
+	
+	_domi_labels.resize(_graphsize);
+	
+	_L1.resize(_graphsize,make_pair(INF, 0.0));
+	_L2.resize(_graphsize,make_pair(INF, 0.0));
+	_L3.resize(_graphsize,make_pair(INF, 0.0));
+
 }
 
 

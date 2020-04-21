@@ -186,6 +186,8 @@ def write_triGraph(instance, filename, nb_ObPs):
 	
 	file.close()
 
+
+
 if __name__ == "__main__":
 	instance = argv[1]
 	nb_ObPs = int(argv[2])
