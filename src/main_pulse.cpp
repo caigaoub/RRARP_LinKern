@@ -66,6 +66,7 @@ void solve_all_pccsp(int inst_idx ){
     int itr =0;
     int size = (int)idxset.size();
     string instpath = "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/";
+    instpath = "/projects/academic/josewalt/caigao/RRARP_LinKern/dat/InnerGraphs/";
     while(itr < size){
     	vector<thread> threads;
     	int cores = min(nr_threads, size - itr);
@@ -82,8 +83,8 @@ void solve_all_pccsp(int inst_idx ){
 
 int main(int argc, const char* argv[]) {
 	argc = argc; // get rid of warning: unused argc	
-	for(int i=i; i<= 1000; i++)
-	solve_all_pccsp(i);
+	int inst_idx = atoi(argv[1]);
+	solve_all_pccsp(inst_idx);
 	return 0;
 }
 

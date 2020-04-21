@@ -1,0 +1,2 @@
+srun: error: "1$" is not a valid node count
+slurmstepd: error: *** JOB 1899332 ON cpn-p26-15 CANCELLED AT 2020-04-20T22:58:29 ***

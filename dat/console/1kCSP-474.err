@@ -1,0 +1,17 @@
+srun: error: "1$" is not a valid node count
+ERROR: could not open file 'ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'
+
+
+/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16
+
+' for reading'
+ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'
+ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'
+ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'
+ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'
+ERROR: could not open file '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/474.trigraph_k16' for reading'
+terminate called recursively
+terminate called after throwing an instance of 'int'
+terminate called recursively
+terminate called recursively
+/var/spool/slurmd/job1899894/slurm_script: line 32: 28516 Aborted                 ./bin/pulse ${SLURM_ARRAY_TASK_ID}
