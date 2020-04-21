@@ -60,9 +60,10 @@ void solve_all_pccsp(int inst_idx ){
     		idxset.push_back(make_pair(i,j));
     	}
     }
+    
     unsigned n_available = std::thread::hardware_concurrency();
     int nr_threads = (int)(n_available-1);
-    // nr_threads = 1;
+    nr_threads = 1;
     int itr =0;
     int size = (int)idxset.size();
     string instpath = "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/";

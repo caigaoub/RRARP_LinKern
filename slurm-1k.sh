@@ -13,7 +13,7 @@
 #SBATCH  --error="./dat/console/1kCSP-%a.err"
 ##SBATCH --mail-user=caigao@buffalo.edu
 ##SBATCH --mail-type=ALL
-##SBATCH --exclude=cpn-p26-[13-18]
+#SBATCH --exclude=cpn-p26-[15-18]
 ##SBATCH --requeue
 
 ##echo "SLURM_JOB_ID="$SLURM_JOB_ID
