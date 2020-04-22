@@ -14,8 +14,6 @@ struct Vertex {
 	double _x;
 	double _y;
 	Vertex& operator= (Vertex other) {
-		// swap(_x, other._x);
-		// swap(_y, other._y);
 		_x = other._x;
 		_y = other._y;
 		return *this;
@@ -45,14 +43,20 @@ public:
 	Vertex			_depot2_loc;
 	Vertex*			_target_locs;
 	double*			_radii;
-	double*			_bdg_rewards_ratio; // budgetary rewards ratio
+	// double*			_bdg_rewards_ratio; // budgetary rewards ratio
 	vector<vector<ObsPoint>> _all_obps;
-	// double*			_risk_thold_ratio; // maximum risk taken at that inner trajectory	
+	vector<vector<vector<double>>> _all_innermatr;
 
 	DataHandler() {};
 	~DataHandler();
+
 	void parse(string filename);
-	// inline double stod(string str){double d; stringstream iss(str); return iss >>d;};
+	void read_instance(string);
+	void pick_trigraphs(string);
+
+	
+
+	inline double stod(string str){double d; stringstream iss(str); return iss >>d;};
 	void print();
 };
 

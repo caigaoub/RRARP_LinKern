@@ -1,0 +1,17 @@
+CPP       	= g++
+CPPARGS   	= -O3 -m64 -std=c++1y -Wall -Wextra -pedantic
+SRCPATH		= ./src/
+BINPATH		= ./bin/
+DATPATH		= ./dat/
+INCBOOST  	= -I /usr/include/
+CPPLIBBOOST 	= -L /usr/lib/  -lboost_system -lboost_filesystem -pthread
+
+all:
+	$(CPP) $(CPPARGS) $(SRCPATH)DataHandler.cpp $(SRCPATH)LKAlgo.cpp \
+	-o $(BINPATH)linkern $(SRCPATH)main_linkern.cpp $(INCBOOST) $(CPPLIBBOOST)
+
+clean:
+	rm -rf $(BINPATH)*.o $(BINPATH)*.dSYM $(BINPATH)linkern
+
+run:
+	$(BINPATH)linkern

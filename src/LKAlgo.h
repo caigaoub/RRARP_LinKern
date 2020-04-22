@@ -14,8 +14,9 @@
 #define INF numeric_limits<double>::infinity()
 
 
+using namespace std;
 
-
+class
 
 
 class LK{
@@ -24,8 +25,9 @@ public:
 	vector<vector<double>>					_riskgraph;
 	vector<vector<vector<double>>>			_innerriskgraph;
 
-	vector<int> 
+	// vector<int> 
 
+	void gain_search();
 
 };
 
