@@ -8,11 +8,14 @@
 #include <string>
 #include <cmath>
 #include <limits>
+#include <tuple>
+
 using namespace std;
 
+
 struct Vertex {
-	double _x;
-	double _y;
+	double		_x;
+	double		_y;
 	Vertex& operator= (Vertex other) {
 		_x = other._x;
 		_y = other._y;
@@ -21,10 +24,23 @@ struct Vertex {
 	inline void print(){cout << "Vertex: (" << _x << "," << _y << ")" << endl;};
 };
 
+class myVector {
+public:
+	double _x;
+	double _y;
+	myVector(Vertex initialp, Vertex endp) {
+		this->_x = endp._x - initialp._x;
+		this->_y = endp._y - initialp._y;
+	}
+	~myVector() {};
+	inline double get_vecLen() {return sqrt(_x*_x + _y*_y); };
+};
+
+
 struct ObsPoint {
-	double _rad;
-	double _angle;
-	double _rewVal;
+	double		_rad;
+	double		_angle;
+	double		_rewVal;
 	ObsPoint& operator= (ObsPoint other) {
 		_rad = other._rad;
 		_angle = other._angle;
@@ -34,30 +50,38 @@ struct ObsPoint {
 	inline void print(){cout << "Observation point: (" << _rad << "," << _angle << "," << _rewVal << ")" << endl;};
 };
 
-class DataHandler {
+class DataHandler{
 public:
-	string          _name;
-	int				_nb_targets;
-	int 			_nb_obps;	
-	Vertex			_depot1_loc;
-	Vertex			_depot2_loc;
-	Vertex*			_target_locs;
-	double*			_radii;
-	// double*			_bdg_rewards_ratio; // budgetary rewards ratio
-	vector<vector<ObsPoint>> _all_obps;
-	vector<vector<vector<double>>> _all_innermatr;
+	string  												_name;
+	int														_nb_targets;
+	int 													_nb_obps;	
+	Vertex													_depot1_loc;
+	Vertex													_depot2_loc;
+	vector<Vertex>											_target_locs;
+	vector<double>											_radii;
+	vector<double>											_bdg_rewards_ratio; // budgetary rewards ratio
+	vector<vector<ObsPoint>> 								_all_obps;
+
+
+	/* risk graph info*/
+	vector<vector<Vertex>>									_points; // all turning points after boundary partitioning
+	int 													_nb_dstzn = 16;
+	int 													_graphsize;
+	double 													_par_outer = 1.0;
+	vector<vector<pair<bool,double>>>						_riskgraph;
+	vector<vector<vector<pair<double, string>>>> 			_all_innermatr;
+
 
 	DataHandler() {};
-	~DataHandler();
+	~DataHandler(){};
 
-	void parse(string filename);
 	void read_instance(string);
 	void pick_trigraphs(string);
+	void build_riskgraph();
+	double eucl_distance(Vertex&, Vertex&);
+	tuple<bool, double,double> is_intersected(Vertex v, Vertex u, int tar);
+	double get_risk_outerTrajc(Vertex v, Vertex u);
 
-	
-
-	inline double stod(string str){double d; stringstream iss(str); return iss >>d;};
-	void print();
 };
 
 

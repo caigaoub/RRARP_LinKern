@@ -51,9 +51,9 @@ def read_one_console(Rilename, Wilename):
 if __name__ == "__main__":
 	Rilename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/console/1kCSP-'
 	Wilename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerPaths/1kCSP-'
-	for i in range(1, 1001):
+	for i in range(1, 590):
 		print(i)
-		if i not in [25, 106, 151, 184,198,202,211,254]:
+		if i not in [106,126,498]:
 			Rname = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/console/1kCSP-'+str(i)+'.out'
 			Wname = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerPaths/1kCSP-'+str(i)+'.dat'
 			read_one_console(Rname, Wname)

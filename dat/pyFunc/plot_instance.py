@@ -5,6 +5,7 @@ import re
 import math
 import time
 from sys import argv
+from operator import itemgetter 
 
 def set_plot_attributes(plt, ax):
     plt.grid(alpha=.5)
@@ -14,7 +15,7 @@ def set_plot_attributes(plt, ax):
     # ax.set_aspect('equal', adjustable='box')
 
 
-def plot_instance(instancefile):
+def plot_instance(instancefile, pickedtrigraphs):
     file_ = open(instancefile, 'r')
     line_ = file_.readline()
     list_ = re.split("\t|\n", line_)
@@ -71,14 +72,14 @@ def plot_instance(instancefile):
         ax.add_artist(circle)
         circle = plt.Circle((tar_loc_x, tar_loc_y), radius=0.01, edgecolor='r',facecolor='r',alpha=0.8)
         ax.add_artist(circle)
-        # ax.annotate("("+str(itr)+": "+str(tar_loc_x)+","+str(tar_loc_y)+")", xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.3, tar_loc_y+0.3))
+        ax.annotate("("+str(itr)+": "+str(tar_loc_x)+","+str(tar_loc_y)+")", xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.3, tar_loc_y+0.3))
         itr += 1   
         line_ = file_.readline()
 
     ''' print observation point '''
     line_ = file_.readline()
 
-    if True:
+    if False:
         tar_idx = 1
         while tar_idx <= nb_tars_:
             list_ = re.split("\t|\n", line_)
@@ -101,12 +102,71 @@ def plot_instance(instancefile):
             plt.scatter(obpX[0:nbobps_showed], obpY[0:nbobps_showed], s=area[0:nbobps_showed], c=colors[0:nbobps_showed],cmap='hsv', alpha=0.5)            
             tar_idx += 1
             line_ = file_.readline()
+    if True:
+        dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/'
+        list_ = re.split(',',pickedtrigraphs)
+        allX = []
+        allY = []
+        for tar in list_:
+            if tar != '':
+                filename = dir + tar + '.trigraph_k16'
+                file_ = open(filename, 'r')
+                line_ = file_.readline()
+                list_ = re.split(' |\t', line_)
+                nb_obps = int(list_[0])
+                line_ = file_.readline()
+                list_ = re.split(' |\t|\n', line_)
+                R = []
+                A = []
+                W = []
+                X = []
+                Y = []
+                # print(list_)
+                for el in list_:
+                    if el != '':
+                        list2_ = re.split(':', el)
+                        r = float(list2_[1])
+                        angle = float(list2_[2])
+                        R.append(r)
+                        A.append(angle)
+                        W.append(float(list2_[3]))
+                        x = r * math.cos(angle) + tar_locs[int(tar)-1][0]
+                        y = r * math.sin(angle) + tar_locs[int(tar)-1][1]
+                        circle = plt.Circle((x, y), radius=0.01, edgecolor='k',facecolor='k',alpha=0.5)
+                        ax.add_artist(circle)
+                        X.append(x)
+                        Y.append(y)
+                allX.append(X)
+                allY.append(Y)
+        '''plot inner path'''
+        filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/optimalpath.txt'
+        fileopath_ = open(filename, 'r')
+        pathx = []
+        pathy = []
+        for i in range(2*nb_tars_+2):
+            line_ = fileopath_.readline()
+            pathx.append(float(line_.split('\t')[1]))
+            pathy.append(float(line_.split('\t')[2]))
+        for i in range(len(pathx)):
+            if i % 2 == 0:
+                plt.plot(pathx[i:i+2], pathy[i:i+2])
+
+
+        for i in range(nb_tars_):
+            line_ = fileopath_.readline()
+            innerpath = [int(e) for e in re.split(',|\n', line_) if e != '']
+            # print()
+            # print(list(itemgetter(*innerpath)(allY[i])))
+            plt.plot(list(itemgetter(*innerpath)(allX[i])), list(itemgetter(*innerpath)(allY[i])))
+
+        fileopath_.close()
 
     file_.close()
     ax.set(xlim=(minx,maxx), ylim=(miny,maxy))
     ax.set_aspect('equal', adjustable='box')
     # plt.xticks(np.arange(minx,maxx,1))
     # plt.yticks(np.arange(miny,maxy,1))
+    # ax.axis('off')
     plt.grid(alpha=.5)
     plt.show()
 
@@ -120,4 +180,6 @@ def plot_instance(instancefile):
 
 if __name__ == "__main__":
     instancefile = argv[1]
-    plot_instance(instancefile)
+    pickedtrigraphs = argv[2]
+
+    plot_instance(instancefile, pickedtrigraphs )

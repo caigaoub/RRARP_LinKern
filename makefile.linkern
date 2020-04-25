@@ -8,7 +8,7 @@ CPPLIBBOOST 	= -L /usr/lib/  -lboost_system -lboost_filesystem -pthread
 
 all:
 	$(CPP) $(CPPARGS) $(SRCPATH)DataHandler.cpp $(SRCPATH)LKAlgo.cpp \
-	-o $(BINPATH)linkern $(SRCPATH)main_linkern.cpp $(INCBOOST) $(CPPLIBBOOST)
+	-o $(BINPATH)linkern $(SRCPATH)MainLK.cpp $(INCBOOST) $(CPPLIBBOOST)
 
 clean:
 	rm -rf $(BINPATH)*.o $(BINPATH)*.dSYM $(BINPATH)linkern
