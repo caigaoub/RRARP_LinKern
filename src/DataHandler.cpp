@@ -109,6 +109,8 @@ void DataHandler::build_riskgraph(){
 			// val_risk = get_risk_outerTrajc(_points[t][i], _depot1_loc);
 			val_risk = eucl_distance(_points[t][i], _depot1_loc);
 			_riskgraph[0][idxmat_1 + i] = make_pair(true, val_risk);
+			_riskgraph[idxmat_1 + i][0] = make_pair(true, val_risk);
+
 		}
 	}
 	/* each pair of entry and exit between targets*/
@@ -125,7 +127,11 @@ void DataHandler::build_riskgraph(){
 						val_risk = eucl_distance(_points[s][i], _points[t][j]); 
 
 						_riskgraph[idxmat_1 + i][idxmat_2 + j] = make_pair(true, val_risk);
+						_riskgraph[idxmat_2 + j][idxmat_1 + i] = make_pair(true, val_risk);
+
 						_riskgraph[idxmat_4 + j][idxmat_3 + i] = make_pair(true, val_risk);
+						_riskgraph[idxmat_3 + i][idxmat_4 + j] = make_pair(true, val_risk);
+
 						// cout<< s << " " << t << ": " << idxmat_1+i << "-->" << idxmat_2+j << " dist: "<< _G[idxmat_1 + i][idxmat_2 + j].second << endl;
 						// cout << idxmat_1+i << "-->" << idxmat_2+j << " : " << _G[idxmat_1 + i][idxmat_2 + j].second << '\n';
 					}
@@ -141,6 +147,7 @@ void DataHandler::build_riskgraph(){
 			val_risk = eucl_distance(_points[s][i], _depot2_loc);
 
 			_riskgraph[idxmat_2 + i][_graphsize - 1] = make_pair(true, val_risk);
+			_riskgraph[_graphsize - 1][idxmat_2 + i] = make_pair(true, val_risk);	
 		}
 	}
 
@@ -155,6 +162,8 @@ void DataHandler::build_riskgraph(){
 				if(i != j){
 					// int flag = (_nb_dstzn - i + j) % _nb_dstzn;
 					_riskgraph[idx_row + i][idx_col + j] = make_pair(true, _all_innermatr[s][i][j].first);
+					_riskgraph[idx_col + j][idx_row + i] = make_pair(true, _all_innermatr[s][i][j].first);
+					
 					// _G[idx_row + i][idx_col + j] = make_pair(false, INF);
 				}
 			}

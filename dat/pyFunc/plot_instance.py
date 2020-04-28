@@ -15,7 +15,7 @@ def set_plot_attributes(plt, ax):
     # ax.set_aspect('equal', adjustable='box')
 
 
-def plot_instance(instancefile, pickedtrigraphs):
+def plot_instance(instancefile, instsize, count):
     file_ = open(instancefile, 'r')
     line_ = file_.readline()
     list_ = re.split("\t|\n", line_)
@@ -72,7 +72,7 @@ def plot_instance(instancefile, pickedtrigraphs):
         ax.add_artist(circle)
         circle = plt.Circle((tar_loc_x, tar_loc_y), radius=0.01, edgecolor='r',facecolor='r',alpha=0.8)
         ax.add_artist(circle)
-        ax.annotate("("+str(itr)+": "+str(tar_loc_x)+","+str(tar_loc_y)+")", xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.3, tar_loc_y+0.3))
+        # ax.annotate("("+str(itr)+": "+str(tar_loc_x)+","+str(tar_loc_y)+")", xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.3, tar_loc_y+0.3))
         itr += 1   
         line_ = file_.readline()
 
@@ -104,12 +104,13 @@ def plot_instance(instancefile, pickedtrigraphs):
             line_ = file_.readline()
     if True:
         dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/'
-        list_ = re.split(',',pickedtrigraphs)
+        # list_ = re.split(',',pickedtrigraphs)
+        list_ = range(1, instsize+1);
         allX = []
         allY = []
         for tar in list_:
             if tar != '':
-                filename = dir + tar + '.trigraph_k16'
+                filename = dir + str(tar) + '.trigraph_k16'
                 file_ = open(filename, 'r')
                 line_ = file_.readline()
                 list_ = re.split(' |\t', line_)
@@ -139,25 +140,35 @@ def plot_instance(instancefile, pickedtrigraphs):
                 allX.append(X)
                 allY.append(Y)
         '''plot inner path'''
-        filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/optimalpath.txt'
+        filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/optimalpath_' + str(count) + '.txt'
         fileopath_ = open(filename, 'r')
         pathx = []
         pathy = []
+        seq = [0]
         for i in range(2*nb_tars_+2):
             line_ = fileopath_.readline()
+            if i % 2 == 1:
+                seq.append(int(line_.split('\t')[0]))
             pathx.append(float(line_.split('\t')[1]))
             pathy.append(float(line_.split('\t')[2]))
         for i in range(len(pathx)):
             if i % 2 == 0:
                 plt.plot(pathx[i:i+2], pathy[i:i+2])
+        # print(pathx)
+        # print(pathy)
+        # print([pathx[-2],pathx[-1]])
+        # print([pathy[-2],pathy[-1]])
+        plt.plot([pathx[-2],pathx[-1]], [pathy[-2],pathy[-1]])
 
-
-        for i in range(nb_tars_):
+        # print(seq)
+        seq.pop(0)
+        seq.pop()
+        for v in seq:
             line_ = fileopath_.readline()
             innerpath = [int(e) for e in re.split(',|\n', line_) if e != '']
             # print()
             # print(list(itemgetter(*innerpath)(allY[i])))
-            plt.plot(list(itemgetter(*innerpath)(allX[i])), list(itemgetter(*innerpath)(allY[i])))
+            plt.plot(list(itemgetter(*innerpath)(allX[v-1])), list(itemgetter(*innerpath)(allY[v-1])))
 
         fileopath_.close()
 
@@ -168,7 +179,8 @@ def plot_instance(instancefile, pickedtrigraphs):
     # plt.yticks(np.arange(miny,maxy,1))
     # ax.axis('off')
     plt.grid(alpha=.5)
-    plt.show()
+    plt.savefig('/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/temp/t_' + str(count) + '.jpg')
+    # plt.show()
 
 ################################################################################################
 
@@ -180,6 +192,7 @@ def plot_instance(instancefile, pickedtrigraphs):
 
 if __name__ == "__main__":
     instancefile = argv[1]
-    pickedtrigraphs = argv[2]
-
-    plot_instance(instancefile, pickedtrigraphs )
+    instsize = int(argv[2])
+    nbpics = int(argv[3])
+    for i in range(nbpics):
+        plot_instance(instancefile, instsize, i)

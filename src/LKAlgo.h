@@ -45,8 +45,9 @@ public:
 
 
 	int 														_toursize;
-	TOUR														_curbesttour;
-	double														_curbestobj;
+	// TOUR														_curbesttour; // curbesttour after flip, but the entry or exit maybe not optimal 
+	TOUR 														_Tour_Star; // the best known tour
+	double														_Obj_Star;
 
 
 
@@ -55,9 +56,13 @@ public:
 
 	void solve(TOUR& startTour, bool);
 	
-	void gain_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double, bool log_On);
+	void gain_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double&, TOUR&, bool log_On);
+	void backtrack_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double& bestGain, TOUR& improvedTour, bool log_On);
+	void greedy_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double& bestGain, TOUR& improvedTour, bool log_On);
+
 	
-	TOUR solve_shortestpath_path(vector<int> & seq);
+	vector<int> get_tsp_seq(TOUR& );
+	pair<TOUR, double> solve_shortestpath_path(vector<int> & seq);
 	// void solve_shortestpath_length(vector<int> & seq);
 
 	int matID_inG(BdyPoint& bp, string brypointtype=ISENTRY);
@@ -69,7 +74,7 @@ public:
 	pair<EdgeY,double> EdgeY_tarK_tarJ(int posK, int posJplus1, TOUR& Tour);
 	pair<EdgeY,double> EdgeY_tarKplus1_tarJplus1(int posKplus1, int posJ, TOUR& Tour);
 	TOUR flip(int posK, int posJ, EdgeY& Y, EdgeY& Yc, const TOUR& curTour);
-	void update_bestTour(const TOUR& tour);
+	void update_tour(TOUR&, const TOUR& tour);
 	bool is_same(BdyPoint& bp1, BdyPoint& bp2);
 	int locate_probe(const int& posK, const int& posJ);
 
@@ -77,6 +82,9 @@ public:
 	void print_tsp(TOUR& tour);
 	void print(set<int>& set1);
 	void print(BdyPoint& bp);
+
+	void write_optimalpath(string filename, const TOUR& tour);
+
 	
 };
 

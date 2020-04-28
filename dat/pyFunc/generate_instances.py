@@ -92,10 +92,10 @@ def write_instance(tar_locs, rewards_ratio, filename):
 
 if __name__ == "__main__":
     ''' basic setting '''
-    if False:
+    if True:
         radius = 1.0
-        size_range = [6, 200]
-        path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/'
+        size_range = [6, 7]
+        path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_LK/'
         for nb_targets in range(size_range[0], size_range[1]+1):
             # densitycoef = 5
             print("currently generate instance with size ", nb_targets)
@@ -111,7 +111,7 @@ if __name__ == "__main__":
             #     tar_locs, rewards_ratio, width, height = generate_instance(nb_targets, radius, densitycoef)
             #     write_instance(tar_locs, rewards_ratio,  path +'n_' + str(nb_targets) +'_' + 'm_' + str(i) + '.dat')
 
-            densitycoef = 4
+            densitycoef = 1.7
             for i in range(1,11):
                 print('h',i)
                 tar_locs, rewards_ratio, width, height = generate_instance(nb_targets, radius, densitycoef)
