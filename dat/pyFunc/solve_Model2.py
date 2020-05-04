@@ -15,54 +15,23 @@ import time
 import cProfile
 import matplotlib.tri as mtri
 
-def find_circle(selected, n, entry, exit):
+def find_path(selected, n, entry, exit):
 	visited = [False]*n
-	# print(" matrix = ", selected)
 	visited[entry] = True
 	cur_node = entry
 	''' find the feasible path from entry to exit '''
 	path = [cur_node]
 	while True:
+		# print(cur_node)
 		for i in range(0, n):
 			if selected[cur_node, i] > 0.5 and visited[i] == False:
+				# print(i)
 				path.append(i)
 				visited[i] = True
 				cur_node = i
 		if cur_node == exit:
 			break
-	# print("path = ", path)
-	''' check existence of some circle(s) '''
-	flag_circle = False
-	start_node = -1
-	for i in range(1, n-1):
-		if visited[i] == False:            
-			for j in range(1, n-1):
-				if selected[i,j] > 0.5 and visited[i] == False:
-					start_node = i
-					flag_circle = True
-					break
-			if flag_circle:
-				break
-	circle = []
-	# print('the starting node of a circle is ', start_node)
-	if flag_circle == True:
-		cur_node = start_node
-		circle.append(cur_node)
-		while True:
-			# print('current node ', cur_node)
-			for i in range(1, n-1):
-				if selected[cur_node, i] > 0.5 and visited[i] == False:
-					# print('next visit node ', i)
-					visited[i] = True
-					cur_node = i
-					break
-			# print('cur_node = ', cur_node, 'circle = ', circle, ' || ', cur_node in circle)
-			if cur_node in circle:
-				break
-			else:
-				circle.append(cur_node)
-	# print("circle = ", circle)
-	return circle       
+	return path       
 
 
 def find_all_circles(selected, n, entry, exit):
@@ -102,30 +71,47 @@ def find_all_circles(selected, n, entry, exit):
 	# print(Cirset)
 	return Cirset     
 
-def cb_subtourelim(model, where):
+def cb_rewardconst(model, where):
 	if where == GRB.Callback.MIPSOL:
 		vals = model.cbGetSolution(model._vars)
-		n = 0
-		for i, j in model._vars.keys():
-			n = max(i,j)
-		n += 1
-		# print(" n = ", n)
+		
 		if False:
-			for i in range(0, n):
-				for j in range(0, n):
+			for i in range(0, model._size):
+				for j in range(0, model._size):
 					print(int(vals[i,j]), end= ' ')
 				print('')    
 		
-		# Cirset = find_circle(vals, n, model._entry, model._exit)
-		Cirset = find_all_circles(vals, n, model._entry, model._exit)
+		path = find_path(vals, model._size, model._entry, model._exit)
+		pathreward = 0
+		for v in path:
+			pathreward += model._obpw[v]
+		# print(path, pathreward)
+		if (pathreward < model._demand):
+			constr = 0
+			for i in range(0,len(path)-1):
+				constr += model._vars[path[i],path[i+1]]
+			model.cbLazy(constr <= len(path)-2)
 
-		if (len(Cirset) != 0):
-			for circle in Cirset:
-				constr = 0
-				for i in range(0,len(circle)-1):
-					constr += model._vars[circle[i],circle[i+1]]
-				constr += model._vars[circle[-1],circle[0]]
-				model.cbLazy(constr <= len(circle)-1)
+		# Cirset = find_all_circles(vals, model._size, model._entry, model._exit)
+
+		# if (len(Cirset) != 0):
+		# 	for circle in Cirset:
+		# 		constr = 0
+		# 		for i in range(0,len(circle)-1):
+		# 			constr += model._vars[circle[i],circle[i+1]]
+		# 		constr += model._vars[circle[-1],circle[0]]
+		# 		model.cbLazy(constr <= len(circle)-1)
+		# else:
+		# 	path = find_path(vals, model._size, model._entry, model._exit)
+		# 	pathreward = 0
+		# 	for v in path:
+		# 		pathreward += model._obpw[v]
+		# 	# print(path, pathreward)
+		# 	if (pathreward < model._demand):
+		# 		constr = 0
+		# 		for i in range(0,len(path)-1):
+		# 			constr += model._vars[path[i],path[i+1]]
+		# 		model.cbLazy(constr <= len(path)-2)
 
 ''' ----------------------------------------- '''
 ''' solve Prize-Collection Constrained Shortest Path (PCCSP) model '''
@@ -142,6 +128,9 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 		model.setParam(GRB.Param.TimeLimit, 600.0)
 		model._entry = entry
 		model._exit = exit
+		model._obpw = obp_rews
+		model._demand = demand
+		model._size = n
 		x = model.addVars(n, n, vtype=GRB.BINARY,name="x")
 		constr = 0
 		for i in range(0,n):
@@ -157,22 +146,22 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 			if G[entry][i] > 0:
 				constr += x[entry,i]         
 		model.addConstr(constr == 1, 's1') 
-		# constr = 0 
-		# for i in range(0, n):
-		# 	if G[i][entry] > 0 and i != entry:
-		# 		constr += x[i,entry]         
-		# model.addConstr(constr == 0, 's2') 
+		constr = 0 
+		for i in range(0, n):
+			if G[i][entry] > 0:
+				constr += x[i,entry]         
+		model.addConstr(constr == 0, 's2') 
 		# sink node
 		constr = 0 
 		for i in range(0, n):
 			if G[i][exit] > 0:
 				constr += x[i,exit]         
 		model.addConstr(constr == 1, 't1') 
-		# constr = 0 
-		# for i in range(0, n):
-		# 	if G[exit][i] > 0 and i != exit:
-		# 		constr += x[exit,i]       
-		# model.addConstr(constr == 0, 't2') 
+		constr = 0 
+		for i in range(0, n):
+			if G[exit][i] > 0:
+				constr += x[exit,i]       
+		model.addConstr(constr == 0, 't2') 
 
 		for i in range(0,n):
 			if i == entry or i == exit:
@@ -209,21 +198,10 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 			model.addConstr(x[entry,exit] == 0, "force"+str(entry)+str(exit))
 			model.update()
 
-		constr1 = 0
-		for i in range(0,n):
-			for j in range(0,n):
-				if G[i][j] > 0:
-					constr1 += x[i,j] * (obp_rews[i] + obp_rews[j])
-		constr1 += obp_rews[entry] + obp_rews[exit]
-		model.addConstr(constr1/2.0 >= demand, "rc")
-
-		model.update()
-
-		# model.write('model.lp')
 
 		model._vars = x
 		model.Params.lazyConstraints = 1
-		model.optimize(cb_subtourelim)
+		model.optimize(cb_rewardconst)
 		# model.optimize()
 
 		''' ------------- model output  ----------------------'''
@@ -256,7 +234,6 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 			print('Gurobi Time: %g' % model.Runtime)
 			print('BestBound: %g' % model.ObjBound)
 			print('MIP Gap: %g' % model.MIPGap)
-
 
 	except gp.GurobiError as e:
 		print('Error code ' + str(e.errno) + ': ' + str(e))
@@ -370,10 +347,7 @@ def plot_ObP_graph(center, obpx, obpy, obprew):
 		ax.annotate(str(i), (x[i]+0.02, y[i]-0.02), horizontalalignment='right', verticalalignment='top',size=10)
 	plt.show()
 
-def read_config(config):
-	file_ = open(config, 'r')
-	line_ = file_.readline()
-	return line_
+
 
 
 
@@ -395,17 +369,3 @@ if __name__ == "__main__":
 	t0 = time.time()
 	path = solve_CSP(G, w, 0, 1, gamma * (total_rew-LBw) + LBw)
 	print("Python Time:",time.time() - t0)
-
-
-
-	# G = np.array([[0, 2, 3, 0, 0, 0, 0], 
-	#               [2, 0, 9, 1, 2, 0, 0], 
-	#               [3, 9, 0, 1, 0, 1, 0], 
-	#               [0, 1, 1, 0, 1, 1, 0], 
-	#               [0, 2, 0, 1, 0, 5, 2],
-	#               [0, 0, 1, 1, 5, 0, 1],
-	#               [0, 0, 0, 0, 2, 1, 0]])
-	# w = [1, 2, 3, 1, 4, 2, 1]
-
-	# path = solve_CSP(G, w, 0, 1, 1.0)
-

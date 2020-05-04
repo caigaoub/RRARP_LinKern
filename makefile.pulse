@@ -8,7 +8,7 @@ CPPLIBBOOST 	= -L /usr/lib/  -lboost_system -lboost_filesystem -pthread
 
 all:
 	$(CPP) $(CPPARGS) $(SRCPATH)DataHandler.cpp $(SRCPATH)PulseAlgo.cpp \
-	-o $(BINPATH)pulse $(SRCPATH)main_pulse.cpp $(INCBOOST) $(CPPLIBBOOST)
+	-o $(BINPATH)pulse $(SRCPATH)MainPulse.cpp $(INCBOOST) $(CPPLIBBOOST)
 
 clean:
 	rm -rf $(BINPATH)*.o $(BINPATH)*.dSYM $(BINPATH)main

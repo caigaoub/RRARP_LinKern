@@ -40,7 +40,6 @@ def plot_ObP_graph(center, obpx, obpy, obprew):
 	plt.show()
 
 def generate_trigraph_random(dir):
-	
 	total_insts = 1000
 	nb_obps = 100
 	filename = 'trigraph_k16_'
@@ -114,7 +113,75 @@ def generate_trigraph_random(dir):
 		file.close()
 		# plot_ObP_graph(center, x, y, ObPw)
 
-if __name__ == "__main__":
-	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/'
-	generate_trigraph_random(dir)
+def generate_trigraph_random(dir, nb_obps, K, idx):
+	filename = 'tG_'+str(nb_obps)+'_'+str(K)+ '_' + str(idx) + '.dat'
+	file = open(dir + filename, "w")
+	''' write observation points '''
+	precision = 1000.0
+	ObPx = []
+	ObPy = []
+	ObPw = [] # reward
+	r = 1.0
+	center = [1.0, 1.0, 1.0]
+	'''write K boundary points '''
+	for j in range(0, K):
+		angle = round(2.0*np.pi/K * j *precision)/precision
+		rewp = np.random.randint(1,10,size=1)
+		x = r * math.cos(angle) + center[0]
+		y = r *math.sin(angle) + center[1]
+		ObPx.append(round(x*precision)/precision)
+		ObPy.append(round(y*precision)/precision)
+		ObPw.append(rewp[0])
 
+	'''write other observation points '''
+	for j in range(0, nb_obps - K - 1):
+		r = round(math.sqrt(np.random.uniform(0.,0.95))*precision)/precision
+		angle = round(np.random.uniform(0,2.0*np.pi)*precision)/precision
+		rewp = np.random.randint(1,10,size=1)
+		x = r * math.cos(angle) + center[0]
+		y = r * math.sin(angle) + center[1]
+		ObPx.append(round(x*precision)/precision)
+		ObPy.append(round(y*precision)/precision)
+		ObPw.append(rewp[0])
+
+	r = round(math.sqrt(np.random.uniform(0.0,0.95))*precision)/precision
+	angle = round(np.random.uniform(0,2.0*np.pi)*precision)/precision
+	rewp = np.random.randint(1,10,size=1)
+	x = r * math.cos(angle) + center[0]
+	y = r * math.sin(angle) + center[1]
+	ObPx.append(round(x*precision)/precision)
+	ObPy.append(round(y*precision)/precision)
+	ObPw.append(rewp[0])		
+		
+	x = np.array(ObPx)
+	y = np.array(ObPy)
+	triang = mtri.Triangulation(x, y)
+	file.write(str(nb_obps)+'\t' + str(len(triang.edges)) + '\n')
+
+	''' write reward on nodes '''
+	for i in range(len(ObPw)-1):
+		file.write(str(i)+':'+str(ObPx[i]) + ':' + str(ObPy[i]) + ':' + str(ObPw[i])+'\t')
+	file.write(str(len(ObPw)-1)+':'+str(ObPx[-1]) + ':' + str(ObPy[-1])+':'+str(ObPw[-1])+'\n')
+	''' write weight info on edges '''
+	for e in triang.edges:
+		# print(e[0], e[1])
+		dx = ObPx[e[0]] - ObPx[e[1]]
+		dy = ObPy[e[0]] - ObPy[e[1]]
+		dist = math.sqrt(dx**2 + dy**2)
+		dist = round(dist*precision)/precision
+		file.write(str(e[0]) + ':' + str(e[1]) + ':' + str(dist) + '\t')
+	file.close()
+	# plot_ObP_graph(center, ObPx, ObPy, ObPw)
+
+		# plot_ObP_graph(center, x, y, ObPw)
+if __name__ == "__main__":
+	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_Pulse/'
+	# generate_trigraph_random(dir)
+	# set_nb_obps = [20, 25, 30, 40, 50,60,70,80,90,100,110,120,130]
+	set_nb_obps = [140,150,160,170,180]
+
+	K = 2
+	set_idx = [1,2,3,4,5]
+	for nb_obps in set_nb_obps:
+		for idx in set_idx:
+			generate_trigraph_random(dir, nb_obps, K, idx)

@@ -13,6 +13,15 @@
 #include <string>
 #define INF numeric_limits<double>::infinity()
 
+class RWP{
+public:
+	double _risk;
+	double _reward;
+	string _path = " ";
+	bool operator < (const RWP& other) const{
+	    return this->_risk < other._risk;
+	}
+};
 
 class Pulse{
 public:
@@ -39,7 +48,10 @@ public:
 	vector<Vertex>							_tnps_tar;
 	int 									_iterations = 0;
 
-	vector<set<pair<double,double>>>		_domi_labels;
+	// vector<set<tuple<double,double,vector<int>>>>		_domi_labels;
+	vector<set<RWP>>		_domi_labels;
+
+
 	unsigned int 							_maxlabsize = 10;
 	vector<pair<double,double>>				_L1;
 	vector<pair<double,double>>				_L2;
@@ -66,6 +78,11 @@ public:
 	void recursive_search(int, vector<int>, double, double, ProgTime&, bool);
 	bool is_intersected(vector<int>&, vector<int>&);
 	void print_opt_sol();
+
+
+	void update_domilabels(int node, vector<int>& path, double pathrisk, double pathreward);
+	string vec_to_string(vector<int>& path);
+
 
 };
 
