@@ -1,0 +1,1 @@
+g++ -m64 -g -o ./bin/mipmodel ./src/STEFormulation.cpp ./src/SubtourCuts.cpp ./src/DataHandler.cpp ./src/MainMIP.cpp -I /opt/gurobi900/linux64/include/ -L /opt/gurobi900/linux64/lib/ -lgurobi_c++ -lgurobi90 -lm -I /usr/include/ -L /usr/lib/ -lboost_system -lboost_filesystem

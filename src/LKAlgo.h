@@ -47,7 +47,7 @@ public:
 	int 														_toursize;
 	// TOUR														_curbesttour; // curbesttour after flip, but the entry or exit maybe not optimal 
 	TOUR 														_Tour_Star; // the best known tour
-	double														_Obj_Star;
+	double														_Obj_Star = INF;
 
 
 

@@ -103,7 +103,9 @@ void func_parr3(int nb_obps, int idx,  string instpath, int source, int sink, do
 	test_time.start_prog();
 	ProgTime timelimit;
 	timelimit.start_prog();
-	test_.recursive_search(source, path, 0, 0, timelimit, 0);	
+	// test_.recursive_search(source, path, 0, 0, timelimit, 0);	
+	test_.HeuRecSearch(source, path, 0, 0, timelimit, 0);	
+
 	test_time.end_prog();
 	cout << " =====>>>> Time: " << test_time._elapsed_secs << endl;
 	test_.print_opt_sol();

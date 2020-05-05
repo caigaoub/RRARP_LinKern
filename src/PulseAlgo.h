@@ -25,39 +25,39 @@ public:
 
 class Pulse{
 public:
-	DataHandler *							_dataset = nullptr;
-	int                     				_taridx = -1;
-	int 									_graphsize;
-	vector<vector<double>> 					_graph;
-	vector<vector<bool>>					_tmp_graph;
+	DataHandler *											_dataset = nullptr;
+	int                     								_taridx = -1;
+	int 													_graphsize;
+	vector<vector<double>> 									_graph;
+	vector<vector<bool>>									_tmp_graph;
 
-	double 									_total_reward = 0;
-	double 									_demand_pct = INF;
-	double 									_demand = INF;
-	int										_source = 0;
-	int 									_sink = -1;
-	double 									_curbest_objval = INF;
-	vector<int>								_curbest_path;
-	vector<double> 							_lbrisk_sink;
-	vector<vector<int>>						_lbriskpaths_sink;
-	vector<double>							_rewards_lbrpaths_sink;		
+	double 													_total_reward = 0;
+	double 													_demand_pct = INF;
+	double 													_demand = INF;
+	int														_source = 0;
+	int 													_sink = -1;
+	double 													_curbest_objval = INF;
+	vector<int>												_curbest_path;
+	vector<double> 											_lbrisk_sink;
+	vector<vector<int>>										_lbriskpaths_sink;
+	vector<double>											_rewards_lbrpaths_sink;		
 
-	vector<double>							_rewards_etd;
+	vector<double>											_rewards_etd;
 
-	int 									_nb_tnps = -1;
-	vector<Vertex>							_tnps_tar;
-	int 									_iterations = 0;
+	int 													_nb_tnps = -1;
+	vector<Vertex>											_tnps_tar;
+	int 													_iterations = 0;
 
 	// vector<set<tuple<double,double,vector<int>>>>		_domi_labels;
 	vector<set<RWP>>		_domi_labels;
 
 
-	unsigned int 							_maxlabsize = 10;
-	vector<pair<double,double>>				_L1;
-	vector<pair<double,double>>				_L2;
-	vector<pair<double,double>>				_L3;
+	unsigned int 											_maxlabsize = 10;
+	vector<pair<double,double>>								_L1;
+	vector<pair<double,double>>								_L2;
+	vector<pair<double,double>>								_L3;
 
-	bool									_status = true;
+	bool													_status = true;
 	
 
 	Pulse() {};
@@ -76,6 +76,9 @@ public:
 	bool check_dominance(int node, double pathrisk, double pathreward);
 	void update_domilabels(int node, double pathrisk, double pathreward);
 	void recursive_search(int, vector<int>, double, double, ProgTime&, bool);
+	void HeuRecSearch(int, vector<int>, double, double, ProgTime&, bool);
+
+	
 	bool is_intersected(vector<int>&, vector<int>&);
 	void print_opt_sol();
 

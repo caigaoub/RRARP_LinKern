@@ -4,11 +4,14 @@ SRCPATH		= ./src/
 BINPATH		= ./bin/
 DATPATH		= ./dat/
 INCBOOST  	= -I /usr/include/
-CPPLIBBOOST 	= -L /usr/lib/  -lboost_system -lboost_filesystem -pthread
+CPPLIBBOOST = -L /usr/lib/  -lboost_system -lboost_filesystem -pthread
+GRBPATH 	=  /opt/gurobi900/linux64/
+INCGRB    	= -I $(GRBPATH)/include/
+CPPLIBGRB 	= -L $(GRBPATH)/lib/ -lgurobi_c++ -lgurobi90 $(CPPSTDLIB) -lpthread -lm
 
 all:
-	$(CPP) $(CPPARGS) $(SRCPATH)DataHandler.cpp $(SRCPATH)LKAlgo.cpp \
-	-o $(BINPATH)linkern $(SRCPATH)MainLK.cpp $(INCBOOST) $(CPPLIBBOOST)
+	$(CPP) $(CPPARGS) $(SRCPATH)DataHandler.cpp $(SRCPATH)LKAlgo.cpp $(SRCPATH)TSPModels.cpp \
+	-o $(BINPATH)linkern $(SRCPATH)MainLK.cpp $(INCBOOST) $(CPPLIBBOOST) $(INCGRB) $(CPPLIBGRB)
 
 clean:
 	rm -rf $(BINPATH)*.o $(BINPATH)*.dSYM $(BINPATH)linkern

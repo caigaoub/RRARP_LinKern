@@ -94,7 +94,7 @@ if __name__ == "__main__":
     ''' basic setting '''
     if True:
         radius = 1.0
-        size_range = [6, 7]
+        size_range = [100,101]
         path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_LK/'
         for nb_targets in range(size_range[0], size_range[1]+1):
             # densitycoef = 5

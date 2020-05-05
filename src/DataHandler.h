@@ -69,7 +69,12 @@ public:
 	int 													_graphsize;
 	double 													_par_outer = 1.0;
 	vector<vector<pair<bool,double>>>						_riskgraph;
+	vector<vector<pair<bool,double>>>						_riskgraph_dic;
 	vector<vector<vector<pair<double, string>>>> 			_all_innermatr;
+	double 													_total_inrisk_LB = 0;
+
+	vector<vector<double>>									_c2c_adjmatr;
+	vector<vector<double>>									_b2b_adjmatr;
 
 
 	DataHandler() {};

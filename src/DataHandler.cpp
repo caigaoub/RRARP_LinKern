@@ -65,12 +65,17 @@ void DataHandler::pick_trigraphs(string dir){
 		int e1 = -1;
 		int e2 = -1;
 		double riskval = 0;
+		double minval = INF;
 		for(int i = 0; i<120; i++){
 			file >> tmp >> e1 >> e2 >> riskval >> pathstr; 
 			// cout << e1 << " " << e2 << " " << riskval << ", " << pathstr << endl;
 			_all_innermatr[index][e1][e2] = make_pair(riskval, pathstr);
 			_all_innermatr[index][e2][e1] = make_pair(riskval, pathstr); 
+			if(riskval < minval){
+				minval = riskval;
+			}
 		}
+		_total_inrisk_LB += minval;
 		index++;
 	}
 }
@@ -92,11 +97,52 @@ void DataHandler::build_riskgraph(){
 	_points[_nb_targets + 1].resize(1); // landing depot
 	_points[_nb_targets + 1][0] = _depot2_loc;
 	// _points[_dataset->_nb_targets + 1][0].print();
+	//------------------------------------------------------------
+	_c2c_adjmatr.resize(_nb_targets+2);
+	_b2b_adjmatr.resize(_nb_targets+2);
+	for (int i = 0; i < _nb_targets+2; i++) {
+		_c2c_adjmatr[i].resize(_nb_targets+2, 0);
+		_b2b_adjmatr[i].resize(_nb_targets+2, 0);
+	}
+	for (int t = 1; t <= _nb_targets; t++) {	
+		double temp = eucl_distance(_target_locs[t-1], _depot1_loc);
+		_c2c_adjmatr[0][t] = temp;
+		_c2c_adjmatr[t][0] = temp;
+		_b2b_adjmatr[0][t] = temp - 1.0;
+		_b2b_adjmatr[t][0] = temp - 1.0;
+
+	}
+	for (int s = 1; s <= _nb_targets; s++) { 
+		for (int t = 1; t <= _nb_targets; t++) {
+			if(s != t){
+				double temp = eucl_distance(_target_locs[s-1], _target_locs[t-1]);
+				_c2c_adjmatr[s][t] = temp;
+				_c2c_adjmatr[t][s] = temp;
+				_b2b_adjmatr[s][t] = temp - 2.0;
+				_b2b_adjmatr[t][s] = temp - 2.0;
+			}
+		}
+	}
+	for (int s = 1; s <= _nb_targets; s++) { 	
+		double temp = eucl_distance(_target_locs[s-1], _depot2_loc);
+		_c2c_adjmatr[0][s] = temp;
+		_c2c_adjmatr[s][0] = temp;
+		_b2b_adjmatr[0][s] = temp - 1.0;
+		_b2b_adjmatr[s][0] = temp - 1.0;
+	}
+
+
+	//------------------------------------------------------------
 
 	_graphsize = 2 * _nb_targets * _nb_dstzn + 2;
 	_riskgraph.resize(_graphsize);
 	for (int i = 0; i < _graphsize; i++) {
 		_riskgraph[i].resize(_graphsize, make_pair(false,INF));
+	}
+
+	_riskgraph_dic.resize(_graphsize);
+	for (int i = 0; i < _graphsize; i++) {
+		_riskgraph_dic[i].resize(_graphsize, make_pair(false,INF));
 	}
 
 	/* Generate the accumulated risk on outer paths*/
@@ -110,6 +156,8 @@ void DataHandler::build_riskgraph(){
 			val_risk = eucl_distance(_points[t][i], _depot1_loc);
 			_riskgraph[0][idxmat_1 + i] = make_pair(true, val_risk);
 			_riskgraph[idxmat_1 + i][0] = make_pair(true, val_risk);
+
+			_riskgraph_dic[0][idxmat_1 + i] = make_pair(true, val_risk);
 
 		}
 	}
@@ -129,8 +177,12 @@ void DataHandler::build_riskgraph(){
 						_riskgraph[idxmat_1 + i][idxmat_2 + j] = make_pair(true, val_risk);
 						_riskgraph[idxmat_2 + j][idxmat_1 + i] = make_pair(true, val_risk);
 
+						_riskgraph_dic[idxmat_1 + i][idxmat_2 + j] = make_pair(true, val_risk);
+
 						_riskgraph[idxmat_4 + j][idxmat_3 + i] = make_pair(true, val_risk);
 						_riskgraph[idxmat_3 + i][idxmat_4 + j] = make_pair(true, val_risk);
+
+						_riskgraph_dic[idxmat_4 + j][idxmat_3 + i] = make_pair(true, val_risk);
 
 						// cout<< s << " " << t << ": " << idxmat_1+i << "-->" << idxmat_2+j << " dist: "<< _G[idxmat_1 + i][idxmat_2 + j].second << endl;
 						// cout << idxmat_1+i << "-->" << idxmat_2+j << " : " << _G[idxmat_1 + i][idxmat_2 + j].second << '\n';
@@ -147,7 +199,10 @@ void DataHandler::build_riskgraph(){
 			val_risk = eucl_distance(_points[s][i], _depot2_loc);
 
 			_riskgraph[idxmat_2 + i][_graphsize - 1] = make_pair(true, val_risk);
-			_riskgraph[_graphsize - 1][idxmat_2 + i] = make_pair(true, val_risk);	
+			_riskgraph[_graphsize - 1][idxmat_2 + i] = make_pair(true, val_risk);
+
+			_riskgraph_dic[idxmat_2 + i][_graphsize - 1] = make_pair(true, val_risk);
+
 		}
 	}
 
@@ -163,6 +218,8 @@ void DataHandler::build_riskgraph(){
 					// int flag = (_nb_dstzn - i + j) % _nb_dstzn;
 					_riskgraph[idx_row + i][idx_col + j] = make_pair(true, _all_innermatr[s][i][j].first);
 					_riskgraph[idx_col + j][idx_row + i] = make_pair(true, _all_innermatr[s][i][j].first);
+					
+					_riskgraph_dic[idx_row + i][idx_col + j] = make_pair(true, _all_innermatr[s][i][j].first);
 					
 					// _G[idx_row + i][idx_col + j] = make_pair(false, INF);
 				}

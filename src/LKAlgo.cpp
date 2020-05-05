@@ -75,13 +75,17 @@ void LK::solve(TOUR& startTour, bool log_On){
 				}
 				auto seq = get_tsp_seq(improvedTour);
 				auto newtour = solve_shortestpath_path(seq);
+				if (newtour.second < _Obj_Star){
+					_Obj_Star = newtour.second;
+				}
+				// cout << newtour.second << ", ";
 				update_tour(curTour, newtour.first); /* update curTour with newtour, which is solved by Dijkstra */
 				if(true){
-					print(curTour);
+					// print(curTour);
 					dir = ROOTDIR;
 					filename = dir+"/dat/pyFunc/optimalpath_" + to_string(count++) + ".txt";
-					write_optimalpath(filename, curTour);
-					cout << " ----------------------------- End -------------------------------------" << endl;
+					// write_optimalpath(filename, curTour);
+					// cout << " ----------------------------- End -------------------------------------" << endl;
 				}
 				// if(count > 1)
 				// 	exit(0);
