@@ -1,5 +1,7 @@
 #include "DataHandler.h"
 #include "MacroName.h"
+#include <boost/filesystem.hpp>
+
 // #define is_server false
 
 
@@ -29,15 +31,25 @@ void DataHandler::read_instance(string filename) {
 	// }else{
 	// 	dir = "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerPaths/";
 	// }
+
 	pick_trigraphs(DIR);
 }
 
 
 void DataHandler::pick_trigraphs(string dir){
-	vector<int> pickarr(_nb_targets, 0);
-	for(int i=0; i < _nb_targets; i++)
-		pickarr[i] = i+1;
 
+
+	vector<int> pickarr;
+	int idx =0;
+	while(true){
+		string filename = dir + "1kCSP-"+to_string(idx) + ".dat";
+		if(boost::filesystem::exists(filename)){
+			pickarr.push_back(idx+1);
+			if((int)pickarr.size() > _nb_targets)
+				break;
+		}
+		idx++;
+	}
 	// for(auto itr=pickarr.begin(); itr != pickarr.end(); itr++){
 	// 	cout << *itr << ',';
 	// }
@@ -56,7 +68,10 @@ void DataHandler::pick_trigraphs(string dir){
 	int index = 0;
 	for(auto itr = pickarr.begin(); itr != pickarr.end(); itr++){
 		string filename = dir + "1kCSP-"+to_string((*itr)) + ".dat";
+		if(!boost::filesystem::exists(filename))
+			continue;
 		fstream file(filename);
+
 		if (!file) {
 			cerr << "ERROR: could not open file '" << filename << "' for reading'" << endl;
 			throw(-1);
@@ -76,6 +91,7 @@ void DataHandler::pick_trigraphs(string dir){
 			}
 		}
 		_total_inrisk_LB += minval;
+
 		index++;
 	}
 }
@@ -108,8 +124,8 @@ void DataHandler::build_riskgraph(){
 		double temp = eucl_distance(_target_locs[t-1], _depot1_loc);
 		_c2c_adjmatr[0][t] = temp;
 		_c2c_adjmatr[t][0] = temp;
-		_b2b_adjmatr[0][t] = temp - 1.0;
-		_b2b_adjmatr[t][0] = temp - 1.0;
+		// _b2b_adjmatr[0][t] = temp - 1.0;
+		// _b2b_adjmatr[t][0] = temp - 1.0;
 
 	}
 	for (int s = 1; s <= _nb_targets; s++) { 
@@ -118,8 +134,8 @@ void DataHandler::build_riskgraph(){
 				double temp = eucl_distance(_target_locs[s-1], _target_locs[t-1]);
 				_c2c_adjmatr[s][t] = temp;
 				_c2c_adjmatr[t][s] = temp;
-				_b2b_adjmatr[s][t] = temp - 2.0;
-				_b2b_adjmatr[t][s] = temp - 2.0;
+				// _b2b_adjmatr[s][t] = temp - 2.0;
+				// _b2b_adjmatr[t][s] = temp - 2.0;
 			}
 		}
 	}
@@ -127,8 +143,8 @@ void DataHandler::build_riskgraph(){
 		double temp = eucl_distance(_target_locs[s-1], _depot2_loc);
 		_c2c_adjmatr[0][s] = temp;
 		_c2c_adjmatr[s][0] = temp;
-		_b2b_adjmatr[0][s] = temp - 1.0;
-		_b2b_adjmatr[s][0] = temp - 1.0;
+		// _b2b_adjmatr[0][s] = temp - 1.0;
+		// _b2b_adjmatr[s][0] = temp - 1.0;
 	}
 
 
@@ -148,9 +164,11 @@ void DataHandler::build_riskgraph(){
 	/* Generate the accumulated risk on outer paths*/
 	int idxmat_1, idxmat_2, idxmat_3, idxmat_4;
 	double val_risk;
+	double minval = INF;
 	/* i) departure depot --> each entry turning point of a target */	
 	for (int t = 1; t <= _nb_targets; t++) {	
 		idxmat_1 = (t - 1) * 2 * _nb_dstzn + 1; 
+		minval = INF;
 		for (int i = 0; i < _nb_dstzn; i++) {
 			// val_risk = get_risk_outerTrajc(_points[t][i], _depot1_loc);
 			val_risk = eucl_distance(_points[t][i], _depot1_loc);
@@ -159,7 +177,11 @@ void DataHandler::build_riskgraph(){
 
 			_riskgraph_dic[0][idxmat_1 + i] = make_pair(true, val_risk);
 
+			if(val_risk < minval)
+				minval = val_risk;
 		}
+		_b2b_adjmatr[0][t] = minval;
+		_b2b_adjmatr[t][0] = minval;
 	}
 	/* each pair of entry and exit between targets*/
 	for (int s = 1; s <= _nb_targets; s++) { // ii) boundary s <-> boudary t
@@ -167,6 +189,7 @@ void DataHandler::build_riskgraph(){
 		idxmat_3 = (s - 1) * 2 * _nb_dstzn + 1; // entries  of target s
 		for (int t = 1; t <= _nb_targets; t++) {
 			if(s != t){
+				minval = INF;
 				idxmat_2 = (t - 1) * 2 * _nb_dstzn + 1; // vertices on boundary t acted as entries
 				idxmat_4 = (t - 1) * 2 * _nb_dstzn + _nb_dstzn + 1; // vertices on boundary t acted as exits
 				for (int i = 0; i < _nb_dstzn; i++) {
@@ -184,16 +207,22 @@ void DataHandler::build_riskgraph(){
 
 						_riskgraph_dic[idxmat_4 + j][idxmat_3 + i] = make_pair(true, val_risk);
 
+						if(val_risk < minval)
+							minval = val_risk;
 						// cout<< s << " " << t << ": " << idxmat_1+i << "-->" << idxmat_2+j << " dist: "<< _G[idxmat_1 + i][idxmat_2 + j].second << endl;
 						// cout << idxmat_1+i << "-->" << idxmat_2+j << " : " << _G[idxmat_1 + i][idxmat_2 + j].second << '\n';
 					}
 				}
+				_b2b_adjmatr[s][t] = minval;
+				_b2b_adjmatr[t][s] = minval;
 			}
 		}
 	}
 	/*all exits to arrival depot*/
 	for (int s = 1; s <= _nb_targets; s++) { 	
 		idxmat_2 = (s - 1) * 2 * _nb_dstzn + _nb_dstzn + 1;
+		minval = INF;
+
 		for (int i = 0; i < _nb_dstzn; i++) {
 			// val_risk = get_risk_outerTrajc(_points[s][i], _depot2_loc);
 			val_risk = eucl_distance(_points[s][i], _depot2_loc);
@@ -202,8 +231,11 @@ void DataHandler::build_riskgraph(){
 			_riskgraph[_graphsize - 1][idxmat_2 + i] = make_pair(true, val_risk);
 
 			_riskgraph_dic[idxmat_2 + i][_graphsize - 1] = make_pair(true, val_risk);
-
+			if(val_risk < minval)
+				minval = val_risk;
 		}
+		_b2b_adjmatr[_nb_targets+1][s] = minval;
+		_b2b_adjmatr[s][_nb_targets+1] = minval;
 	}
 
 

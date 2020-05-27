@@ -94,9 +94,13 @@ if __name__ == "__main__":
     ''' basic setting '''
     if True:
         radius = 1.0
-        size_range = [100,101]
+        # size_range = [30,40,50,60,70,80,90,110]
+        # size_range = [110, 120,130,140,150]
+        size_range = [500]
+
+
         path = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_LK/'
-        for nb_targets in range(size_range[0], size_range[1]+1):
+        for nb_targets in size_range:
             # densitycoef = 5
             print("currently generate instance with size ", nb_targets)
             # for i in range(1,11):
@@ -112,7 +116,7 @@ if __name__ == "__main__":
             #     write_instance(tar_locs, rewards_ratio,  path +'n_' + str(nb_targets) +'_' + 'm_' + str(i) + '.dat')
 
             densitycoef = 1.7
-            for i in range(1,11):
+            for i in range(1,2):
                 print('h',i)
                 tar_locs, rewards_ratio, width, height = generate_instance(nb_targets, radius, densitycoef)
                 write_instance(tar_locs, rewards_ratio,  path +'n_'+ str(nb_targets) +'_' + 'h_' + str(i) + '.dat')

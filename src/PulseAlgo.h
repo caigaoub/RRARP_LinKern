@@ -11,12 +11,14 @@
 #include <numeric>
 #include "ProgTime.h"
 #include <string>
+#include <algorithm>
+#include <random>
 #define INF numeric_limits<double>::infinity()
 
 class RWP{
 public:
 	double _risk;
-	double _reward;
+	double _resource;
 	string _path = " ";
 	bool operator < (const RWP& other) const{
 	    return this->_risk < other._risk;
@@ -49,7 +51,16 @@ public:
 	int 													_iterations = 0;
 
 	// vector<set<tuple<double,double,vector<int>>>>		_domi_labels;
-	vector<set<RWP>>		_domi_labels;
+	vector<set<RWP>>										_domi_labels;
+
+	// add resource constraint
+	vector<vector<double>> 									_rscgraph;
+	vector<double> 											_lbrsc_sink;
+	vector<vector<int>>										_lbrscpaths_sink;
+	vector<double>											_rewards_lbrscpaths_sink;	
+	double 													_budget = INF;	
+	double 													_rsc_lbrpath_source_sink = INF;
+
 
 
 	unsigned int 											_maxlabsize = 10;
@@ -65,6 +76,11 @@ public:
 
 
 	void read_PCCSP_instance(string);
+
+
+	void read_PCCSP_instance2(string filename);
+	void calc_leastresource_sink();
+
 	void initialize_generalgraph(vector<vector<double>>&, vector<double>&, int, double);
 	void initialize_triGraph(DataHandler&, int, int, string);
 	void set_parameters(const int, const int, const double);
@@ -76,11 +92,12 @@ public:
 	bool check_dominance(int node, double pathrisk, double pathreward);
 	void update_domilabels(int node, double pathrisk, double pathreward);
 	void recursive_search(int, vector<int>, double, double, ProgTime&, bool);
-	void HeuRecSearch(int, vector<int>, double, double, ProgTime&, bool);
+	void HeuRecSearch(int, vector<int>, double, double, double, ProgTime&, bool);
 
 	
 	bool is_intersected(vector<int>&, vector<int>&);
 	void print_opt_sol();
+	pair<pair<double,double>, vector<int>> quick_wrapup2(const vector<int>& visited, int startnode);
 
 
 	void update_domilabels(int node, vector<int>& path, double pathrisk, double pathreward);

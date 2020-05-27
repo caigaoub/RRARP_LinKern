@@ -22,7 +22,7 @@ def plot_instance(instancefile, instsize, count):
     nb_tars_ = int(list_[0])
     fig, ax  = plt.subplots()
     # set_plot_attributes(plt, ax)
-    ax.set_title(instancefile)
+    # ax.set_title(instancefile)
     minx = 100000
     maxx = -100
     miny = 100000
@@ -72,6 +72,8 @@ def plot_instance(instancefile, instsize, count):
         ax.add_artist(circle)
         circle = plt.Circle((tar_loc_x, tar_loc_y), radius=0.01, edgecolor='r',facecolor='r',alpha=0.8)
         ax.add_artist(circle)
+        ax.annotate(str(itr), xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.8, tar_loc_y+0.8))
+
         # ax.annotate("("+str(itr)+": "+str(tar_loc_x)+","+str(tar_loc_y)+")", xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.3, tar_loc_y+0.3))
         itr += 1   
         line_ = file_.readline()
@@ -153,12 +155,12 @@ def plot_instance(instancefile, instsize, count):
             pathy.append(float(line_.split('\t')[2]))
         for i in range(len(pathx)):
             if i % 2 == 0:
-                plt.plot(pathx[i:i+2], pathy[i:i+2])
+                plt.plot(pathx[i:i+2], pathy[i:i+2],'k')
         # print(pathx)
         # print(pathy)
         # print([pathx[-2],pathx[-1]])
         # print([pathy[-2],pathy[-1]])
-        plt.plot([pathx[-2],pathx[-1]], [pathy[-2],pathy[-1]])
+        plt.plot([pathx[-2],pathx[-1]], [pathy[-2],pathy[-1]],'k')
 
         # print(seq)
         seq.pop(0)
@@ -168,7 +170,7 @@ def plot_instance(instancefile, instsize, count):
             innerpath = [int(e) for e in re.split(',|\n', line_) if e != '']
             # print()
             # print(list(itemgetter(*innerpath)(allY[i])))
-            plt.plot(list(itemgetter(*innerpath)(allX[v-1])), list(itemgetter(*innerpath)(allY[v-1])))
+            plt.plot(list(itemgetter(*innerpath)(allX[v-1])), list(itemgetter(*innerpath)(allY[v-1])), 'k')
 
         fileopath_.close()
 
@@ -177,7 +179,7 @@ def plot_instance(instancefile, instsize, count):
     ax.set_aspect('equal', adjustable='box')
     # plt.xticks(np.arange(minx,maxx,1))
     # plt.yticks(np.arange(miny,maxy,1))
-    # ax.axis('off')
+    ax.axis('off')
     plt.grid(alpha=.5)
     plt.savefig('/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/temp/t_' + str(count) + '.jpg')
     # plt.show()
@@ -193,6 +195,7 @@ def plot_instance(instancefile, instsize, count):
 if __name__ == "__main__":
     instancefile = argv[1]
     instsize = int(argv[2])
-    nbpics = int(argv[3])
-    for i in range(nbpics):
+    minidx = int(argv[3])
+    maxidx = int(argv[4])
+    for i in range(minidx, maxidx+1):
         plot_instance(instancefile, instsize, i)

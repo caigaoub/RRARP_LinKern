@@ -28,7 +28,7 @@ void TSPModel_STE::create_formula(){
 	// set up the model
 	GRBEnv env = GRBEnv();
 	_model = new GRBModel(env);
-	_model->getEnv().set(GRB_IntParam_OutputFlag, 1);
+	_model->getEnv().set(GRB_IntParam_OutputFlag, 0);
 	_model->getEnv().set(GRB_IntParam_LazyConstraints, 1);
 	_model->getEnv().set(GRB_IntParam_PreCrush, 1);
 	_model->getEnv().set(GRB_IntParam_MIPFocus, 1); // focus on feasibility

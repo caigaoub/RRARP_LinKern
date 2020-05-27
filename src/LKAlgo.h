@@ -54,11 +54,15 @@ public:
 	void initialize(DataHandler&);
 	vector<int> random_tsp_seq(int);
 
-	void solve(TOUR& startTour, bool);
+	void solve_linkern(TOUR& startTour, bool);
+	void solve_opt2(TOUR& startTour, bool);
 	
 	void gain_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double&, TOUR&, bool log_On);
 	void backtrack_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double& bestGain, TOUR& improvedTour, bool log_On);
 	void greedy_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double& bestGain, TOUR& improvedTour, bool log_On);
+
+	void opt2_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double& bestGain, TOUR& improvedTour, bool log_On);
+	void opt3_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double& bestGain, TOUR& improvedTour, bool log_On);
 
 	
 	vector<int> get_tsp_seq(TOUR& );
@@ -81,7 +85,10 @@ public:
 	void print(TOUR& tour);
 	void print_tsp(TOUR& tour);
 	void print(set<int>& set1);
+	void print(set<double>& set1);
+
 	void print(BdyPoint& bp);
+	void print(vector<int>& seq);
 
 	void write_optimalpath(string filename, const TOUR& tour);
 

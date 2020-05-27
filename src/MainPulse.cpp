@@ -95,8 +95,9 @@ void solve_all_pccsp(int inst_idx ){
 
 void func_parr3(int nb_obps, int idx,  string instpath, int source, int sink, double demandPCT){
 	Pulse  test_;
-	test_.read_PCCSP_instance(instpath+"tG_" +to_string(nb_obps) + "_2_" + to_string(idx) + ".dat");
+	test_.read_PCCSP_instance2(instpath+"tG2_" +to_string(nb_obps) + "_16_" + to_string(idx) + ".dat");
 	test_.set_parameters(source, sink, demandPCT);
+	test_.calc_leastresource_sink();
 	test_.calc_leastrisk_sink();
 	vector<int> path;
 	ProgTime test_time;
@@ -104,7 +105,7 @@ void func_parr3(int nb_obps, int idx,  string instpath, int source, int sink, do
 	ProgTime timelimit;
 	timelimit.start_prog();
 	// test_.recursive_search(source, path, 0, 0, timelimit, 0);	
-	test_.HeuRecSearch(source, path, 0, 0, timelimit, 0);	
+	test_.HeuRecSearch(source, path, 0, 0, 0, timelimit, 0);	
 
 	test_time.end_prog();
 	cout << " =====>>>> Time: " << test_time._elapsed_secs << endl;
@@ -131,8 +132,8 @@ int main(int argc, const char* argv[]) {
 	// solve_all_pccsp(inst_idx);
 	const int nb_obps = atoi(argv[1]);
 	const int idx = atoi(argv[2]);
-	double pct = atof(argv[3]);
-	func_parr3(nb_obps, idx, "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_Pulse/", 0, 1, pct);
+	double demand_pct = atof(argv[3]);
+	func_parr3(nb_obps, idx, "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_Pulse/", 0, 8, demand_pct);
 	return 0;
 }
 

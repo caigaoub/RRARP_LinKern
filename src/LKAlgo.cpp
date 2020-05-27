@@ -1,6 +1,8 @@
 #include "LKAlgo.h"
 #include "MacroName.h"
 #include <algorithm>
+#include <random>
+#include <chrono> 
 #define INF numeric_limits<double>::infinity()
 void LK::initialize(DataHandler& dataset){
 	this->_dataset = &dataset;
@@ -12,19 +14,21 @@ void LK::initialize(DataHandler& dataset){
 	this->_nb_targets = _dataset->_nb_targets;
 } 
 
-
+// int myrandom (int i) { return std::rand()%i;}
 vector<int> LK::random_tsp_seq(int nb_targets){
 	vector<int> seq;
 	for(int i=0; i <= nb_targets+1; i++)
 		seq.push_back(i);
-	std::random_shuffle(seq.begin()+1,seq.end()-1);
+	  std::random_device rd;
+    std::mt19937 g(rd());
+	std::shuffle(seq.begin()+1,seq.end()-1, g);
 	// for(auto itr=tour.begin(); itr != tour.end(); itr++)
 	// 	cout << *itr << " ";
 	// cout << '\n';
 	return seq;
 }
 
-void LK::solve(TOUR& startTour, bool log_On){
+void LK::solve_linkern(TOUR& startTour, bool log_On){
 	TOUR curTour = startTour;
 	double rval_X;
 	int depth;
@@ -65,6 +69,7 @@ void LK::solve(TOUR& startTour, bool log_On){
 			VisSet.insert(tarID_inTour(posK, curTour));
 			VisSet.insert(tarID_inTour(posK+1, curTour));
 			gain_search(curTour, posK, rval_X, depth, criterion, VisSet, bestGain, improvedTour, log_On);	
+			// opt2_search(curTour, posK, rval_X, depth, criterion, VisSet, bestGain, improvedTour, log_On);	
 
 			VisSet.clear();
 			if(bestGain > 0.0){
@@ -84,7 +89,7 @@ void LK::solve(TOUR& startTour, bool log_On){
 					// print(curTour);
 					dir = ROOTDIR;
 					filename = dir+"/dat/pyFunc/optimalpath_" + to_string(count++) + ".txt";
-					// write_optimalpath(filename, curTour);
+					write_optimalpath(filename, curTour);
 					// cout << " ----------------------------- End -------------------------------------" << endl;
 				}
 				// if(count > 1)
@@ -374,6 +379,208 @@ void LK::greedy_search(TOUR& curTour, int posK, double risk_prevX, int depth, do
 
 }
 
+
+
+void LK::solve_opt2(TOUR& startTour, bool log_On){
+	TOUR curTour = startTour;
+	double rval_X;
+	int depth;
+	double criterion;
+	set<int> VisSet;
+	double bestGain;
+	TOUR improvedTour;
+	int count = 0;
+	string dir = ROOTDIR;
+	string filename = dir+"/dat/pyFunc/optimalpath_" + to_string(count++) + ".txt";
+	// write_optimalpath(filename, curTour);
+	// auto seqe = get_tsp_seq(startTour);
+	// auto iniret = solve_shortestpath_path(seqe);
+	int nb_improvements = 0;
+	while(true){
+
+		if(log_On){
+			cout << '\n';
+			cout << "-------------------------------  Initial tour --------------------------------------" << endl;
+			print_tsp(curTour);
+			print(curTour);
+			cout << "--------------------------------------------------------------------------------" << endl;
+			cout << '\n';
+		}
+
+		int posK=0;
+		for(posK = 0; posK <= _nb_targets; posK++){
+			depth = 0;
+			criterion = 0.0;
+			VisSet.clear();
+			bestGain = 0.0;
+			improvedTour.clear();
+			rval_X = get_Xrisk(posK, posK+1, curTour); 
+			if(log_On){
+				cout << '\n';
+				cout << " ... FIRST BREAK X(" << tarID_inTour(posK, curTour) << "," << tarID_inTour(posK+1, curTour);
+				cout << ")" << endl;
+				cout << "depth: " << depth << " criterion: " << criterion << " bestGain: " << bestGain << endl;
+			}
+			VisSet.insert(tarID_inTour(posK, curTour));
+			VisSet.insert(tarID_inTour(posK+1, curTour));
+			opt2_search(curTour, posK, rval_X, depth, criterion, VisSet, bestGain, improvedTour, log_On);	
+
+			VisSet.clear();
+			if(bestGain > 0.0){
+				nb_improvements ++;
+				if(nb_improvements > 10){
+					nb_improvements = 0;
+					auto seq = get_tsp_seq(improvedTour);
+					auto newtour = solve_shortestpath_path(seq);
+					update_tour(curTour, newtour.first); /* update curTour with newtour, which is solved by Dijkstra */
+					if (newtour.second < _Obj_Star){
+						_Obj_Star = newtour.second;
+					}
+				}else{
+					update_tour(curTour, improvedTour); 
+				}
+
+				if(true){
+					// print(curTour);
+					dir = ROOTDIR;
+					filename = dir+"/dat/pyFunc/optimalpath_" + to_string(count++) + ".txt";
+					// write_optimalpath(filename, curTour);
+					// cout << " ----------------------------- End -------------------------------------" << endl;
+				}
+				// if(count > 1)
+				// 	exit(0);
+				break;
+			}
+
+		}
+		if(improvedTour.size() != 0){
+			auto seq = get_tsp_seq(improvedTour);
+			auto newtour = solve_shortestpath_path(seq);
+			_Obj_Star = newtour.second;
+		}
+		if(posK == _nb_targets+1)
+			break;
+	}
+	// dijkstra();
+}
+void LK::opt2_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double& bestGain, TOUR& improvedTour, bool log_On){
+	if(log_On){
+		cout << '\n';
+		cout << " ... # of flips implemented so far: " << depth << endl;
+		cout << " ... "; print_tsp(curTour);
+		cout << " ... visited nodes: "; print(VisSet);
+		cout << " ... search gain for current probe: " << tarID_inTour(posK, curTour) << ", pos " << posK << endl;
+	}
+
+	set<pair<double, int>> Jcandidates;
+	double UB = criterion + risk_prevX;
+	for(int posJ =0; posJ<=_nb_targets; posJ++){
+		int tarJ = tarID_inTour(posJ, curTour);
+		int tarJplus1 = tarID_inTour(posJ + 1, curTour);
+		bool unvisited = (VisSet.find(tarJ)== VisSet.end() && VisSet.find(tarJplus1)==VisSet.end());
+		if(unvisited){ // unvisited before
+			auto ret_Y = EdgeY_tarK_tarJ(posK, posJ, curTour);
+			if(ret_Y.second == INF){
+				cerr << " distance error " << endl;
+			}
+			if(ret_Y.second < UB){ 
+				Jcandidates.insert(make_pair(ret_Y.second, posJ));
+			}		
+		}
+	}
+
+	if(Jcandidates.empty()){
+		if(log_On){
+			cout << " ... Backtrack: NO AVAILABLE NODES. RETURN" << endl;
+		}
+		return;
+	}
+
+	for(auto itr=Jcandidates.begin(); itr != Jcandidates.end(); itr++ ){
+			int posJ = (*itr).second;
+			int tarJ = tarID_inTour(posJ, curTour);
+			int tarJplus1 = tarID_inTour(posJ + 1, curTour);
+			bool unvisited = (VisSet.find(tarJ)== VisSet.end() && VisSet.find(tarJplus1)==VisSet.end());
+
+			/*search promising gain by connecting K with J */
+			if(log_On){
+				cout << " ... <@For Loop> visited nodes: "; print(VisSet);
+				cout << " *** posJ = " << posJ <<  " [break X1(" << tarID_inTour(posK,curTour) << "," << tarID_inTour(posK+1,curTour) << ")";
+				cout << " and X2(" << tarID_inTour(posJ,curTour) << "," << tarID_inTour(posJ+1,curTour) << ")]";
+				cout << " & [add Y(" << tarID_inTour(posK, curTour) << "," << tarID_inTour(posJ,curTour) << ")";
+				cout << " and Yc(" << tarID_inTour(posK+1, curTour) << "," << tarID_inTour(posJ+1,curTour) << ")]" << endl;
+			}
+			auto ret_Y = EdgeY_tarK_tarJ(posK, posJ, curTour);
+			if(ret_Y.second == INF){
+				cerr << " distance error " << endl;
+			}
+			if(log_On){
+				cout << " ... rval_X1 = " << risk_prevX << ", and Y(";
+				cout << tarID_inTour(posK, curTour) <<"," << tarJ << ") = " << ret_Y.second << endl;
+			}
+			double delta = risk_prevX - ret_Y.second;
+			// if(delta > 0){
+				// criterion += delta;
+				double rval_X2 = get_Xrisk(posJ, posJ+1, curTour);
+				// closing up path
+				auto ret_Yc = EdgeY_tarKplus1_tarJplus1(posK+1, posJ+1, curTour); 
+				if(ret_Yc.second == INF){
+					cerr << " distance error " << endl;
+				}
+				 // make the flip 
+				if(log_On){
+					cout << " ... rval_X2 = " << rval_X2 << ", and Yc(";
+					cout << tarID_inTour(posK+1, curTour) <<"," << tarID_inTour(posJ+1,curTour) << ") = " << ret_Yc.second << endl;
+				}
+				auto newTour = flip(posK, posJ, ret_Y.first, ret_Yc.first, curTour);				
+				if(log_On){
+					cout << " ... curTour: ";
+					print(curTour);
+					cout << " ... newTour: ";
+					print(newTour);	
+				}
+				
+				// VisSet.insert(tarJ);
+				// VisSet.insert(tarJplus1);
+				// int posNewprobe = locate_probe(posK, posJ);
+				// cout << " ===: " << criterion  << ", " << rval_X2 << ", " <<  ret_Yc.second << ", " << bestGain << endl;
+				// cout << " ===: " << criterion + rval_X2 - ret_Yc.second << ", " << bestGain << endl;
+				if( delta + rval_X2 - ret_Yc.second > bestGain){
+					update_tour(improvedTour, newTour);
+					bestGain = criterion + delta + rval_X2 - ret_Yc.second;
+					if(log_On){
+						cout << "*********************************************************** " << endl;
+						cout << " ... !!! POSITIVE GAIN !!! Gain collected so far: " << bestGain << endl;
+						cout << "*********************************************************** " << endl;
+						// print(_curbesttour);	
+					}
+					/* search all futher flips based on current flip*/
+					// this->gain_search(improvedTour, posNewprobe, rval_X2, depth+1, criterion+delta, VisSet, bestGain, improvedTour, log_On);
+					/* after deeper search completes, we already have improvement. So, terminate the prog and accept the first round tour 
+					improvement. No need to select another pair <J,J+1> in current depth*/
+					return;
+				}
+			// }
+			
+			
+		}
+}
+
+
+
+void LK::opt3_search(TOUR& curTour, int posK, double risk_prevX, int depth, double criterion, set<int>& VisSet, double& bestGain, TOUR& improvedTour, bool log_On){
+	if(log_On){
+		cout << '\n';
+		cout << " ... # of flips implemented so far: " << depth << endl;
+		cout << " ... "; print_tsp(curTour);
+		cout << " ... visited nodes: "; print(VisSet);
+		cout << " ... search gain for current probe: " << tarID_inTour(posK, curTour) << ", pos " << posK << endl;
+	}
+
+	if(depth < 3){//backtracking steps
+		backtrack_search(curTour, posK, risk_prevX, depth,criterion, VisSet, bestGain, improvedTour, log_On);
+	}
+}
 
 int LK::matID_inG(BdyPoint& bp, string brypointtype){
 	if(bp._tarID == 0){
@@ -669,7 +876,26 @@ void LK::print_tsp(TOUR& tour){
 	cout << '\n';
 }
 
+void LK::print(vector<int>& seq){
+	// cout << "tsp: ";
+	for(auto itr=seq.begin(); itr != seq.end(); itr++){
+		cout << *itr << ' ';
+	}
+	cout << '\n';
+}
+
 void LK::print(set<int>& set1){
+	if(set1.empty()){
+		cout<< "the set is empty !!" << endl;
+	}else{
+		for(auto itr=set1.begin(); itr != set1.end(); itr++)
+			cout << *itr << ' ';
+		cout << endl;
+	}
+
+}
+
+void LK::print(set<double>& set1){
 	if(set1.empty()){
 		cout<< "the set is empty !!" << endl;
 	}else{

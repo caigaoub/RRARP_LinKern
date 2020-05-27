@@ -139,7 +139,7 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 		# Create a new model
 		model = gp.Model("PCCSP")
 		model.setParam(GRB.Param.OutputFlag, 1)
-		model.setParam(GRB.Param.TimeLimit, 600.0)
+		model.setParam(GRB.Param.TimeLimit, 100.0)
 		model._entry = entry
 		model._exit = exit
 		x = model.addVars(n, n, vtype=GRB.BINARY,name="x")
@@ -264,7 +264,7 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 	except AttributeError:
 		print('Encountered an attribute error')
 
-	# return path
+	return path
 
 
 def read_pccsp_instance(instancefile):
@@ -303,6 +303,7 @@ def read_pccsp_instance(instancefile):
 			G[s,t] = d
 			G[t,s] = d
 	file_.close()
+	plot_ObP_graph([1,1,1], x, y, w)
 	return G, x, y, w
 
 def plot_target_area(center, obp_x, obp_y, obp_reward, path=None):
@@ -370,11 +371,6 @@ def plot_ObP_graph(center, obpx, obpy, obprew):
 		ax.annotate(str(i), (x[i]+0.02, y[i]-0.02), horizontalalignment='right', verticalalignment='top',size=10)
 	plt.show()
 
-def read_config(config):
-	file_ = open(config, 'r')
-	line_ = file_.readline()
-	return line_
-
 
 
 if __name__ == "__main__":
@@ -395,6 +391,49 @@ if __name__ == "__main__":
 	t0 = time.time()
 	path = solve_CSP(G, w, 0, 1, gamma * (total_rew-LBw) + LBw)
 	print("Python Time:",time.time() - t0)
+
+
+	''' preprocess the inner path for Linkernighan Heuristic '''
+	# nb_obps = 70
+	# for idx in range(1,2):
+	# 	gamma = 0.3
+	# 	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/'
+	# 	filename = 'tG_'+ str(nb_obps) +'_16_' + str(idx) +'.dat'
+	# 	G, x, y, w = read_pccsp_instance(dir+filename)
+	# 	plot_ObP_graph([1,1,1], x, y, w)
+	# 	_graph = nx.Graph(G)
+	# 	wilename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerPaths/1kCSP-' + str(idx)+'.dat'
+	# 	wile = open(wilename, "w")
+	# 	for i in range(0,16):
+	# 		for j in range(i+1,16):
+	# 			rval_lrpath, path_sink = nx.single_source_dijkstra(_graph, i, j)
+	# # print(path_sink)
+	# 			LBw = 0
+	# 			for e in path_sink:
+	# 				LBw += w[e]
+	# # print(LBw)
+	# 			total_rew = np.sum(w)
+	# 			# t0 = time.time()
+	# 			path = solve_CSP(G, w, i, j, gamma * (total_rew-LBw) + LBw)
+	# 			pathstring = ''
+	# 			for e in path:
+	# 				pathstring += str(e) + ','
+	# 			wile.write(str(idx) + '\t' + str(i) + '\t' + str(j) + '\t' + pathstring + '\n')
+	# 	wile.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
