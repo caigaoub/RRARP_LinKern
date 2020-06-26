@@ -68,51 +68,25 @@ def plot_instance(instancefile, instsize, count):
         maxx = max(maxx, tar_loc_x+tar_rad)
         miny = min(miny, tar_loc_y-tar_rad)
         maxy = max(maxy, tar_loc_y+tar_rad)
-        circle = plt.Circle((tar_loc_x, tar_loc_y), radius=tar_rad, edgecolor='k',facecolor='k',alpha=0.2)
+        circle = plt.Circle((tar_loc_x, tar_loc_y), radius=tar_rad, edgecolor='k',fill=False,alpha=0.3,lw=1)
         ax.add_artist(circle)
-        circle = plt.Circle((tar_loc_x, tar_loc_y), radius=0.01, edgecolor='r',facecolor='r',alpha=0.8)
+        # circle = plt.Circle((tar_loc_x, tar_loc_y), radius=0.01, edgecolor='r',facecolor='r',alpha=1)
         ax.add_artist(circle)
-        ax.annotate(str(itr), xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.8, tar_loc_y+0.8))
+        ax.annotate(str(itr), xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x-1.2, tar_loc_y+1),size=6)
 
         # ax.annotate("("+str(itr)+": "+str(tar_loc_x)+","+str(tar_loc_y)+")", xy=(tar_loc_x, tar_loc_y), xytext=(tar_loc_x+0.3, tar_loc_y+0.3))
         itr += 1   
         line_ = file_.readline()
 
-    ''' print observation point '''
-    line_ = file_.readline()
-
-    if False:
-        tar_idx = 1
-        while tar_idx <= nb_tars_:
-            list_ = re.split("\t|\n", line_)
-            obpX = []
-            obpY = []
-            colors = []
-            # print(list_)
-            for e in list_:
-                if e != '':
-                    list2_ = re.split(":", e)
-                    r = float(list2_[0])
-                    angle = float(list2_[1])
-                    obp_x = r * math.cos(angle) + tar_locs[tar_idx-1][0]
-                    obp_y = r * math.sin(angle) + tar_locs[tar_idx-1][1]
-                    obpX.append(obp_x)
-                    obpY.append(obp_y)
-                    colors.append(float(list2_[2]))
-            area = [1]*len(obpX)
-            nbobps_showed = 16 + 200 # first 16 are boundary points
-            plt.scatter(obpX[0:nbobps_showed], obpY[0:nbobps_showed], s=area[0:nbobps_showed], c=colors[0:nbobps_showed],cmap='hsv', alpha=0.5)            
-            tar_idx += 1
-            line_ = file_.readline()
     if True:
-        dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/'
+        dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InfoRegions/'
         # list_ = re.split(',',pickedtrigraphs)
         list_ = range(1, instsize+1);
         allX = []
         allY = []
         for tar in list_:
             if tar != '':
-                filename = dir + str(tar) + '.trigraph_k16'
+                filename = dir + 'tG_70_8_' + str(tar) + '.dat'
                 file_ = open(filename, 'r')
                 line_ = file_.readline()
                 list_ = re.split(' |\t', line_)
@@ -128,19 +102,25 @@ def plot_instance(instancefile, instsize, count):
                 for el in list_:
                     if el != '':
                         list2_ = re.split(':', el)
-                        r = float(list2_[1])
-                        angle = float(list2_[2])
-                        R.append(r)
-                        A.append(angle)
+                        x = float(list2_[1])
+                        y = float(list2_[2])
+                        # print(r, angle, end=', ')
+                        # R.append(r)
+                        # A.append(angle)
                         W.append(float(list2_[3]))
-                        x = r * math.cos(angle) + tar_locs[int(tar)-1][0]
-                        y = r * math.sin(angle) + tar_locs[int(tar)-1][1]
-                        circle = plt.Circle((x, y), radius=0.01, edgecolor='k',facecolor='k',alpha=0.5)
+                        # x = r * math.cos(angle) + tar_locs[int(tar)-1][0]
+                        # y = r * math.sin(angle) + tar_locs[int(tar)-1][1]
+                        x = x + tar_locs[int(tar)-1][0] - 1
+                        y = y + tar_locs[int(tar)-1][1] - 1
+
+                        circle = plt.Circle((x, y), radius=0.06, lw= 0.01,edgecolor='w',facecolor='b',alpha=1)
                         ax.add_artist(circle)
                         X.append(x)
                         Y.append(y)
                 allX.append(X)
                 allY.append(Y)
+                # colors = np.random.rand(len(allX))
+                # plt.scatter(allX, allY,s=1, c=colors, cmap='jet')
         '''plot inner path'''
         filename = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/optimalpath_' + str(count) + '.txt'
         fileopath_ = open(filename, 'r')
@@ -155,22 +135,23 @@ def plot_instance(instancefile, instsize, count):
             pathy.append(float(line_.split('\t')[2]))
         for i in range(len(pathx)):
             if i % 2 == 0:
-                plt.plot(pathx[i:i+2], pathy[i:i+2],'k')
+                plt.plot(pathx[i:i+2], pathy[i:i+2],color='k',alpha=1,linewidth=1)
         # print(pathx)
         # print(pathy)
         # print([pathx[-2],pathx[-1]])
         # print([pathy[-2],pathy[-1]])
-        plt.plot([pathx[-2],pathx[-1]], [pathy[-2],pathy[-1]],'k')
+        plt.plot([pathx[-2],pathx[-1]], [pathy[-2],pathy[-1]],'k',alpha=1,  linewidth=1)
 
         # print(seq)
         seq.pop(0)
         seq.pop()
         for v in seq:
             line_ = fileopath_.readline()
+            # print(re.split(',|\n', line_))
             innerpath = [int(e) for e in re.split(',|\n', line_) if e != '']
             # print()
             # print(list(itemgetter(*innerpath)(allY[i])))
-            plt.plot(list(itemgetter(*innerpath)(allX[v-1])), list(itemgetter(*innerpath)(allY[v-1])), 'k')
+            plt.plot(list(itemgetter(*innerpath)(allX[v-1])), list(itemgetter(*innerpath)(allY[v-1])), 'k', alpha=1, linewidth=1)
 
         fileopath_.close()
 
@@ -180,8 +161,8 @@ def plot_instance(instancefile, instsize, count):
     # plt.xticks(np.arange(minx,maxx,1))
     # plt.yticks(np.arange(miny,maxy,1))
     ax.axis('off')
-    plt.grid(alpha=.5)
-    plt.savefig('/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/temp/t_' + str(count) + '.jpg')
+    # plt.grid(alpha=.5)
+    plt.savefig('/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/temp/t_' + str(count) + '.jpg', format='jpg',dpi=500)
     # plt.show()
 
 ################################################################################################

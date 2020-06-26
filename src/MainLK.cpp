@@ -24,20 +24,19 @@ int main(int argc, const char* argv[]) {
 	argc = argc; // get rid of warning: unused argc
 	string filename = argv[1];
 	const int nb_targets = atoi(argv[2]);
-
-
 	DataHandler dataset_;
 	// string filename = "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_LK/"
 	dataset_.read_instance(filename);
 
 	dataset_.build_riskgraph();
 
+
 	LK testLK_;
 	testLK_.initialize(dataset_);
 	LK testOpt2_;
 	testOpt2_.initialize(dataset_);
 
-	int maxround = 10;
+	int maxround = 20;
 	vector<double> objsLK;
 	vector<double> objsOpt2;
 	vector<double> timeLK;
@@ -51,7 +50,7 @@ int main(int argc, const char* argv[]) {
 		testLK_.solve_linkern(initialtour1.first, false);
 		lk.end_prog();
 		timeLK.push_back(lk._elapsed_secs);
-		cout << "LK time: " << lk._elapsed_secs << endl;
+		cout << "LK time: " << lk._elapsed_secs << " ** " << testLK_._Obj_Star << endl;
 		objsLK.push_back(testLK_._Obj_Star);
 
 
@@ -62,7 +61,8 @@ int main(int argc, const char* argv[]) {
 		opt2.end_prog();
 		timeOpt2.push_back(opt2._elapsed_secs);
 
-		cout << "opt2 time: " << opt2._elapsed_secs << endl;
+
+		cout << "opt2 time: " << opt2._elapsed_secs << " ** " << testOpt2_._Obj_Star << endl;
 
 		objsOpt2.push_back(testOpt2_._Obj_Star);
 		exit(0);

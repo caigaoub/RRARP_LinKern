@@ -53,6 +53,7 @@ public:
 	// vector<set<tuple<double,double,vector<int>>>>		_domi_labels;
 	vector<set<RWP>>										_domi_labels;
 
+
 	// add resource constraint
 	vector<vector<double>> 									_rscgraph;
 	vector<double> 											_lbrsc_sink;

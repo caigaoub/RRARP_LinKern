@@ -174,7 +174,7 @@ def generate_trigraph_random(dir, nb_obps, K, idx):
 	# plot_ObP_graph(center, ObPx, ObPy, ObPw)
 
 def generate_trigraph_random(dir, nb_obps, K, idx):
-	filename = 'tG2_'+str(nb_obps)+'_'+str(K)+ '_' + str(idx) + '.dat'
+	filename = 'tG_'+str(nb_obps)+'_'+str(K)+ '_' + str(idx) + '.dat'
 	file = open(dir + filename, "w")
 	''' write observation points '''
 	precision = 1000.0
@@ -234,27 +234,27 @@ def generate_trigraph_random(dir, nb_obps, K, idx):
 	file.close()
 		# plot_ObP_graph(center, x, y, ObPw)
 if __name__ == "__main__":
-	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_Pulse/'
-	# generate_trigraph_random(dir)
-	# set_nb_obps = [20, 25, 30, 40, 50,60,70,80,90,100,110,120,130]
-	set_nb_obps = [50]
+	# dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_Pulse/'
+	# # generate_trigraph_random(dir)
+	# # set_nb_obps = [20, 25, 30, 40, 50,60,70,80,90,100,110,120,130]
+	# set_nb_obps = [110, 130]
 
-	K = 16
-	set_idx = [1,2,3,4,5]
-	for nb_obps in set_nb_obps:
-		for idx in set_idx:
-			generate_trigraph_random(dir, nb_obps, K, idx)
+	# K = 2
+	# set_idx = [1,2,3,4,5]
+	# for nb_obps in set_nb_obps:
+	# 	for idx in set_idx:
+	# 		generate_trigraph_random(dir, nb_obps, K, idx)
 
 
 
 	''''  generate 500 inner graph for preprocssing  '''
-	# dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerGraphs/'
-	# # generate_trigraph_random(dir)
-	# # set_nb_obps = [20, 25, 30, 40, 50,60,70,80,90,100,110,120,130]
-	# set_nb_obps = [70]
+	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InfoRegions/'
+	# generate_trigraph_random(dir)
+	# set_nb_obps = [20, 25, 30, 40, 50,60,70,80,90,100,110,120,130]
+	set_nb_obps = [70]
 
-	# K = 16
-	# set_idx = range(1, 501)
-	# for nb_obps in set_nb_obps:
-	# 	for idx in set_idx:
-	# 		generate_trigraph_random(dir, nb_obps, K, idx)
+	K = 8
+	set_idx = range(1, 501)
+	for nb_obps in set_nb_obps:
+		for idx in set_idx:
+			generate_trigraph_random(dir, nb_obps, K, idx)

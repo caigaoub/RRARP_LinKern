@@ -359,7 +359,7 @@ if __name__ == "__main__":
 	filename = 'tG_'+ str(nb_obps) +'_2_' + str(idx) +'.dat'
 	G, x, y, w = read_pccsp_instance(dir+filename)
 	_graph = nx.Graph(G)
-	rval_lrpath, path_sink = nx.single_source_dijkstra(_graph,0,1)
+	rval_lrpath, path_sink = nx.single_source_dijkstra(_graph,0, 1)
 	print(path_sink)
 	LBw = 0
 	for e in path_sink:
@@ -367,5 +367,5 @@ if __name__ == "__main__":
 	print(LBw)
 	total_rew = np.sum(w)
 	t0 = time.time()
-	path = solve_CSP(G, w, 0, 1, gamma * (total_rew-LBw) + LBw)
+	path = solve_CSP(G, w, 0, 1, gamma * LBw)
 	print("Python Time:",time.time() - t0)

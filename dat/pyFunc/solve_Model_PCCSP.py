@@ -100,25 +100,21 @@ def find_all_circles(selected, n, entry, exit):
 			if j == n: # no unvisited node left; terminate
 				break 
 	# print(Cirset)
+
 	return Cirset     
 
 def cb_subtourelim(model, where):
 	if where == GRB.Callback.MIPSOL:
 		vals = model.cbGetSolution(model._vars)
-		n = 0
-		for i, j in model._vars.keys():
-			n = max(i,j)
-		n += 1
-		# print(" n = ", n)
 		if False:
-			for i in range(0, n):
-				for j in range(0, n):
-					print(int(vals[i,j]), end= ' ')
-				print('')    
-		
+			for i in range(0, model._x_size):
+				for j in range(0, model._x_size):
+					if int(vals[i,j]) > 0.5:
+						print(i,' ', j, end= ', ')
+				# print('')    
+			# print('\n')
 		# Cirset = find_circle(vals, n, model._entry, model._exit)
-		Cirset = find_all_circles(vals, n, model._entry, model._exit)
-
+		Cirset = find_all_circles(vals, model._x_size, model._entry, model._exit)
 		if (len(Cirset) != 0):
 			for circle in Cirset:
 				constr = 0
@@ -126,6 +122,7 @@ def cb_subtourelim(model, where):
 					constr += model._vars[circle[i],circle[i+1]]
 				constr += model._vars[circle[-1],circle[0]]
 				model.cbLazy(constr <= len(circle)-1)
+				model._nb_SECs  += 1
 
 ''' ----------------------------------------- '''
 ''' solve Prize-Collection Constrained Shortest Path (PCCSP) model '''
@@ -139,9 +136,11 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 		# Create a new model
 		model = gp.Model("PCCSP")
 		model.setParam(GRB.Param.OutputFlag, 1)
-		model.setParam(GRB.Param.TimeLimit, 100.0)
+		model.setParam(GRB.Param.TimeLimit, 200.0)
 		model._entry = entry
 		model._exit = exit
+		model._x_size = n
+		model._nb_SECs = 0
 		x = model.addVars(n, n, vtype=GRB.BINARY,name="x")
 		constr = 0
 		for i in range(0,n):
@@ -228,22 +227,35 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 
 		''' ------------- model output  ----------------------'''
 		if model.status == GRB.OPTIMAL or model.status == GRB.TIME_LIMIT:
+			# vals = np.zeros((n,n))
 			# for i in range(n):
+			# 	# print(i, '= ', end=' ')
 			# 	for j in range(n):
-			# 		print(int(x[i,j].x), end=' ')
-			# 	print('\n', end='')
+			# 		# print(int(x[i,j].x), end=' ')
+			# 		vals[i,j] = int(x[i,j].x)
+			# 		if int(x[i,j].x) > 0.5:
+			# 			print(i, ' ', j, end=', ')
+			# print('dddddddd')
+			# vals = model.cbGetSolution(model._vars)
+			# find_all_circles(vals, n, entry, exit)
+			# print('\n')
 			visited = [False]*n
 			visited[entry] = True
 			cur_node = entry
 			path = [cur_node]
+			
 			while True:
 				for i in range(0, n):
+					# print(cur_node, x[cur_node,i].x, visited[i], end=', ' )
 					if x[cur_node,i].x > 0.5 and visited[i] == False:
+						# print(path, cur_node)
 						path.append(i)
 						visited[i] = True
 						cur_node = i
+				# print('\n')
 				if cur_node == exit:
 					break
+
 			print("the optimal path: ", path)
 			collec_r = 0
 			for e in path:
@@ -256,7 +268,8 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 			print('Gurobi Time: %g' % model.Runtime)
 			print('BestBound: %g' % model.ObjBound)
 			print('MIP Gap: %g' % model.MIPGap)
-
+			# print(' & ' + str(int(model.Runtime *100)/100) + ' & ' + str(int(total_risk*100)/100) + ' & ' + str(int(model.ObjBound*100)/100) + ' & ' + str(int(model.MIPGap*100)/100))
+			# print(' & ' + str("{:.2f}".format(model.Runtime)) + ' & ' + str(model._nb_SECs) + ' & ' + str("{:.2f}".format(model.MIPGap*100)))
 
 	except gp.GurobiError as e:
 		print('Error code ' + str(e.errno) + ': ' + str(e))
@@ -264,8 +277,7 @@ def solve_CSP(G, obp_rews, entry, exit, demand):
 	except AttributeError:
 		print('Encountered an attribute error')
 
-	return path
-
+	return total_risk, path, "{:.2f}".format(model.MIPGap*100)
 
 def read_pccsp_instance(instancefile):
 	file_ = open(instancefile, 'r')
@@ -303,7 +315,7 @@ def read_pccsp_instance(instancefile):
 			G[s,t] = d
 			G[t,s] = d
 	file_.close()
-	plot_ObP_graph([1,1,1], x, y, w)
+	# plot_ObP_graph([1,1,1], x, y, w)
 	return G, x, y, w
 
 def plot_target_area(center, obp_x, obp_y, obp_reward, path=None):
@@ -372,25 +384,74 @@ def plot_ObP_graph(center, obpx, obpy, obprew):
 	plt.show()
 
 
+def preprocess():
+	nb_instances = 10
+	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InfoRegions/'
+	EEpairs = []
+	for i in range(0,8):
+		for j in range(i+1,8):
+			EEpairs.append([i,j])
+	for v in range(1,501):
+		filename = 'tG_70_8_' + str(v) +'.dat'
+		G, x, y, w = read_pccsp_instance(dir+filename)
+		_graph = nx.Graph(G)
+		# maxw_spath = 0
+		# for ee in EEpairs:
+		# 	rval_lrpath, path_sink = nx.single_source_dijkstra(_graph,ee[0],ee[1])
+		# 	LBw = 0
+		# 	for e in path_sink:
+		# 		LBw += w[e]
+		# 	if LBw > maxw_spath:
+		# 		maxw_spath = LBw
+		# demand = 1 * maxw_spath
+		demand = 0.2 * np.sum(w)
+		file = open("/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InfoRegions/preprocess_results/prepro_"+str(v)+'.out', "w")
+		# k = 0
+		# print(EEpairs)
+		for ee in EEpairs:
+			# rval_lrpath, path_sink = nx.single_source_dijkstra(_graph,ee[0],ee[1])
+			print(ee)
+			UB, path, mipgap = solve_CSP(G, w, ee[0], ee[1], demand)
+			file.write(str(v) + ' ' + str(ee[0]) + ' ' + str(ee[1]) + ' ' +  str(mipgap) + '?' +  str(UB) + " = ")
+			for e in path:
+				file.write(str(e) + ',')
+			file.write('\n')
+			# if k > 2:
+			# 	break
+			# k += 1
 
-if __name__ == "__main__":
-	nb_obps = int(argv[1])
-	idx = int(argv[2])
-	gamma = float(argv[3])
+		file.close()
+
+
+def run_one_instance(nb_obps, idx, gamma):
 	dir = '/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/Inst_Pulse/'
 	filename = 'tG_'+ str(nb_obps) +'_2_' + str(idx) +'.dat'
+	t0 = time.time()
+
 	G, x, y, w = read_pccsp_instance(dir+filename)
 	_graph = nx.Graph(G)
 	rval_lrpath, path_sink = nx.single_source_dijkstra(_graph,0,1)
-	print(path_sink)
+	# print(path_sink)
 	LBw = 0
 	for e in path_sink:
 		LBw += w[e]
-	print(LBw)
+	
 	total_rew = np.sum(w)
-	t0 = time.time()
-	path = solve_CSP(G, w, 0, 1, gamma * (total_rew-LBw) + LBw)
-	print("Python Time:",time.time() - t0)
+	print("max gamma: ", total_rew/LBw)
+
+	path = solve_CSP(G, w, 0, 1, gamma * LBw)
+	path = solve_CSP(G, w, 0, 1, gamma * LBw)
+
+
+if __name__ == "__main__":
+	# nb_obps = int(argv[1])
+	# idx = int(argv[2])
+	# gamma = float(argv[3])
+	# run_one_instance(nb_obps, idx, gamma)
+	preprocess()
+
+
+	# print("Python Time:",time.time() - t0)
 
 
 	''' preprocess the inner path for Linkernighan Heuristic '''

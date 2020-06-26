@@ -65,7 +65,7 @@ public:
 
 	/* risk graph info*/
 	vector<vector<Vertex>>									_points; // all turning points after boundary partitioning
-	int 													_nb_dstzn = 16;
+	int 													_nb_dstzn = 8;
 	int 													_graphsize;
 	double 													_par_outer = 1.0;
 	vector<vector<pair<bool,double>>>						_riskgraph;
@@ -73,8 +73,8 @@ public:
 	vector<vector<vector<pair<double, string>>>> 			_all_innermatr;
 	double 													_total_inrisk_LB = 0;
 
-	vector<vector<double>>									_c2c_adjmatr;
-	vector<vector<double>>									_b2b_adjmatr;
+	vector<vector<double>>									_c2c_adjmatr; // center to center
+	vector<vector<double>>									_b2b_adjmatr; // boudary to boundary
 
 
 	DataHandler() {};

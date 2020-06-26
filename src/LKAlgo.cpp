@@ -397,7 +397,6 @@ void LK::solve_opt2(TOUR& startTour, bool log_On){
 	// auto iniret = solve_shortestpath_path(seqe);
 	int nb_improvements = 0;
 	while(true){
-
 		if(log_On){
 			cout << '\n';
 			cout << "-------------------------------  Initial tour --------------------------------------" << endl;
@@ -472,35 +471,42 @@ void LK::opt2_search(TOUR& curTour, int posK, double risk_prevX, int depth, doub
 		cout << " ... search gain for current probe: " << tarID_inTour(posK, curTour) << ", pos " << posK << endl;
 	}
 
-	set<pair<double, int>> Jcandidates;
-	double UB = criterion + risk_prevX;
-	for(int posJ =0; posJ<=_nb_targets; posJ++){
-		int tarJ = tarID_inTour(posJ, curTour);
-		int tarJplus1 = tarID_inTour(posJ + 1, curTour);
-		bool unvisited = (VisSet.find(tarJ)== VisSet.end() && VisSet.find(tarJplus1)==VisSet.end());
-		if(unvisited){ // unvisited before
-			auto ret_Y = EdgeY_tarK_tarJ(posK, posJ, curTour);
-			if(ret_Y.second == INF){
-				cerr << " distance error " << endl;
-			}
-			if(ret_Y.second < UB){ 
-				Jcandidates.insert(make_pair(ret_Y.second, posJ));
-			}		
-		}
-	}
+	// set<pair<double, int>> Jcandidates;
+	// double UB = criterion + risk_prevX;
+	// for(int posJ =0; posJ<=_nb_targets; posJ++){
+	// 	int tarJ = tarID_inTour(posJ, curTour);
+	// 	int tarJplus1 = tarID_inTour(posJ + 1, curTour);
+	// 	bool unvisited = (VisSet.find(tarJ)== VisSet.end() && VisSet.find(tarJplus1)==VisSet.end());
+	// 	if(unvisited){ // unvisited before
+	// 		auto ret_Y = EdgeY_tarK_tarJ(posK, posJ, curTour);
+	// 		if(ret_Y.second == INF){
+	// 			cerr << " distance error " << endl;
+	// 		}
+	// 		if(ret_Y.second < UB){ 
+	// 			Jcandidates.insert(make_pair(ret_Y.second, posJ));
+	// 		}		
+	// 	}
+	// }
 
-	if(Jcandidates.empty()){
-		if(log_On){
-			cout << " ... Backtrack: NO AVAILABLE NODES. RETURN" << endl;
-		}
-		return;
-	}
+	// if(Jcandidates.empty()){
+	// 	if(log_On){
+	// 		cout << " ... Backtrack: NO AVAILABLE NODES. RETURN" << endl;
+	// 	}
+	// 	return;
+	// }
 
-	for(auto itr=Jcandidates.begin(); itr != Jcandidates.end(); itr++ ){
-			int posJ = (*itr).second;
+	// for(auto itr=Jcandidates.begin(); itr != Jcandidates.end(); itr++ ){
+		for(int posJ =0; posJ<=_nb_targets; posJ++){
 			int tarJ = tarID_inTour(posJ, curTour);
 			int tarJplus1 = tarID_inTour(posJ + 1, curTour);
 			bool unvisited = (VisSet.find(tarJ)== VisSet.end() && VisSet.find(tarJplus1)==VisSet.end());
+			if(!unvisited){ // unvisited before
+				continue;		
+			}
+			// int posJ = (*itr).second;
+			// int tarJ = tarID_inTour(posJ, curTour);
+			// int tarJplus1 = tarID_inTour(posJ + 1, curTour);
+			// bool unvisited = (VisSet.find(tarJ)== VisSet.end() && VisSet.find(tarJplus1)==VisSet.end());
 
 			/*search promising gain by connecting K with J */
 			if(log_On){
@@ -519,51 +525,27 @@ void LK::opt2_search(TOUR& curTour, int posK, double risk_prevX, int depth, doub
 				cout << tarID_inTour(posK, curTour) <<"," << tarJ << ") = " << ret_Y.second << endl;
 			}
 			double delta = risk_prevX - ret_Y.second;
-			// if(delta > 0){
-				// criterion += delta;
-				double rval_X2 = get_Xrisk(posJ, posJ+1, curTour);
+			double rval_X2 = get_Xrisk(posJ, posJ+1, curTour);
 				// closing up path
-				auto ret_Yc = EdgeY_tarKplus1_tarJplus1(posK+1, posJ+1, curTour); 
-				if(ret_Yc.second == INF){
-					cerr << " distance error " << endl;
-				}
-				 // make the flip 
-				if(log_On){
-					cout << " ... rval_X2 = " << rval_X2 << ", and Yc(";
-					cout << tarID_inTour(posK+1, curTour) <<"," << tarID_inTour(posJ+1,curTour) << ") = " << ret_Yc.second << endl;
-				}
-				auto newTour = flip(posK, posJ, ret_Y.first, ret_Yc.first, curTour);				
-				if(log_On){
-					cout << " ... curTour: ";
-					print(curTour);
-					cout << " ... newTour: ";
-					print(newTour);	
-				}
-				
-				// VisSet.insert(tarJ);
-				// VisSet.insert(tarJplus1);
-				// int posNewprobe = locate_probe(posK, posJ);
-				// cout << " ===: " << criterion  << ", " << rval_X2 << ", " <<  ret_Yc.second << ", " << bestGain << endl;
-				// cout << " ===: " << criterion + rval_X2 - ret_Yc.second << ", " << bestGain << endl;
-				if( delta + rval_X2 - ret_Yc.second > bestGain){
-					update_tour(improvedTour, newTour);
-					bestGain = criterion + delta + rval_X2 - ret_Yc.second;
-					if(log_On){
-						cout << "*********************************************************** " << endl;
-						cout << " ... !!! POSITIVE GAIN !!! Gain collected so far: " << bestGain << endl;
-						cout << "*********************************************************** " << endl;
-						// print(_curbesttour);	
-					}
-					/* search all futher flips based on current flip*/
-					// this->gain_search(improvedTour, posNewprobe, rval_X2, depth+1, criterion+delta, VisSet, bestGain, improvedTour, log_On);
-					/* after deeper search completes, we already have improvement. So, terminate the prog and accept the first round tour 
-					improvement. No need to select another pair <J,J+1> in current depth*/
-					return;
-				}
-			// }
-			
-			
-		}
+			auto ret_Yc = EdgeY_tarKplus1_tarJplus1(posK+1, posJ+1, curTour); 
+			 // make the flip 
+			if(log_On){
+				cout << " ... rval_X2 = " << rval_X2 << ", and Yc(";
+				cout << tarID_inTour(posK+1, curTour) <<"," << tarID_inTour(posJ+1,curTour) << ") = " << ret_Yc.second << endl;
+			}
+			auto newTour = flip(posK, posJ, ret_Y.first, ret_Yc.first, curTour);				
+			if(log_On){
+				cout << " ... curTour: ";
+				print(curTour);
+				cout << " ... newTour: ";
+				print(newTour);	
+			}
+			if( delta + rval_X2 - ret_Yc.second > bestGain){
+				update_tour(improvedTour, newTour);
+				bestGain = criterion + delta + rval_X2 - ret_Yc.second;
+				return;
+			}
+	}
 }
 
 

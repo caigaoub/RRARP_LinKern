@@ -32,7 +32,7 @@ void DataHandler::read_instance(string filename) {
 	// 	dir = "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InnerPaths/";
 	// }
 
-	pick_trigraphs(DIR);
+	pick_trigraphs("/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/InfoRegions/preprocess_results/");
 }
 
 
@@ -40,34 +40,31 @@ void DataHandler::pick_trigraphs(string dir){
 
 
 	vector<int> pickarr;
-	int idx =0;
+	int idx =1;
 	while(true){
-		string filename = dir + "1kCSP-"+to_string(idx) + ".dat";
+		string filename = dir + "prepro_"+to_string(idx) + ".out";
 		if(boost::filesystem::exists(filename)){
-			pickarr.push_back(idx+1);
-			if((int)pickarr.size() > _nb_targets)
+			pickarr.push_back(idx);
+			if((int)pickarr.size() >= _nb_targets)
 				break;
 		}
 		idx++;
 	}
-	// for(auto itr=pickarr.begin(); itr != pickarr.end(); itr++){
-	// 	cout << *itr << ',';
-	// }
-	// cout << '\n';
-
 
 	_all_innermatr.resize(_nb_targets);
 	string pathstr = " ";
+
 	for(int t=0; t<_nb_targets; t++){
-		_all_innermatr[t].resize(16);
-		for(int i=0; i<16; i++){
-			_all_innermatr[t][i].resize(16, make_pair(0.0, pathstr));
+		_all_innermatr[t].resize(_nb_dstzn);
+		for(int i=0; i<_nb_dstzn; i++){
+			_all_innermatr[t][i].resize(_nb_dstzn, make_pair(0.0, pathstr));
 		}		
 	}
 
 	int index = 0;
 	for(auto itr = pickarr.begin(); itr != pickarr.end(); itr++){
-		string filename = dir + "1kCSP-"+to_string((*itr)) + ".dat";
+		string filename =  dir + "prepro_"+to_string(index+1) + ".out";
+		// cout << filename << endl;
 		if(!boost::filesystem::exists(filename))
 			continue;
 		fstream file(filename);
@@ -79,11 +76,16 @@ void DataHandler::pick_trigraphs(string dir){
 		int tmp = -1;
 		int e1 = -1;
 		int e2 = -1;
-		double riskval = 0;
+		string sub_str = " ";
+		string temp_str = " ";
 		double minval = INF;
-		for(int i = 0; i<120; i++){
-			file >> tmp >> e1 >> e2 >> riskval >> pathstr; 
-			// cout << e1 << " " << e2 << " " << riskval << ", " << pathstr << endl;
+		std::string::size_type sz;     // alias of size_t
+		for(int i = 0; i< 28; i++){
+			file >> tmp >> e1 >> e2 >> sub_str >> temp_str >> pathstr; 
+			// cout << sub_str << " ==== " <<  pathstr << endl;
+			auto pos = sub_str.find_first_of("?");
+			double  riskval = stod(sub_str.substr(pos+1, sub_str.size()), &sz);
+			// cout << riskval << endl;
 			_all_innermatr[index][e1][e2] = make_pair(riskval, pathstr);
 			_all_innermatr[index][e2][e1] = make_pair(riskval, pathstr); 
 			if(riskval < minval){
@@ -97,6 +99,7 @@ void DataHandler::pick_trigraphs(string dir){
 }
 
 void DataHandler::build_riskgraph(){
+	double par_c = 1;
 	_points.resize(_nb_targets + 2);
 	_points[0].resize(1); //departure point
 	_points[0][0] = _depot1_loc;
@@ -121,17 +124,16 @@ void DataHandler::build_riskgraph(){
 		_b2b_adjmatr[i].resize(_nb_targets+2, 0);
 	}
 	for (int t = 1; t <= _nb_targets; t++) {	
-		double temp = eucl_distance(_target_locs[t-1], _depot1_loc);
+		double temp = par_c * eucl_distance(_target_locs[t-1], _depot1_loc);
 		_c2c_adjmatr[0][t] = temp;
 		_c2c_adjmatr[t][0] = temp;
 		// _b2b_adjmatr[0][t] = temp - 1.0;
 		// _b2b_adjmatr[t][0] = temp - 1.0;
-
 	}
 	for (int s = 1; s <= _nb_targets; s++) { 
 		for (int t = 1; t <= _nb_targets; t++) {
 			if(s != t){
-				double temp = eucl_distance(_target_locs[s-1], _target_locs[t-1]);
+				double temp = par_c * eucl_distance(_target_locs[s-1], _target_locs[t-1]);
 				_c2c_adjmatr[s][t] = temp;
 				_c2c_adjmatr[t][s] = temp;
 				// _b2b_adjmatr[s][t] = temp - 2.0;
@@ -140,7 +142,7 @@ void DataHandler::build_riskgraph(){
 		}
 	}
 	for (int s = 1; s <= _nb_targets; s++) { 	
-		double temp = eucl_distance(_target_locs[s-1], _depot2_loc);
+		double temp = par_c * eucl_distance(_target_locs[s-1], _depot2_loc);
 		_c2c_adjmatr[0][s] = temp;
 		_c2c_adjmatr[s][0] = temp;
 		// _b2b_adjmatr[0][s] = temp - 1.0;
@@ -171,7 +173,7 @@ void DataHandler::build_riskgraph(){
 		minval = INF;
 		for (int i = 0; i < _nb_dstzn; i++) {
 			// val_risk = get_risk_outerTrajc(_points[t][i], _depot1_loc);
-			val_risk = eucl_distance(_points[t][i], _depot1_loc);
+			val_risk = par_c * eucl_distance(_points[t][i], _depot1_loc);
 			_riskgraph[0][idxmat_1 + i] = make_pair(true, val_risk);
 			_riskgraph[idxmat_1 + i][0] = make_pair(true, val_risk);
 
@@ -195,7 +197,7 @@ void DataHandler::build_riskgraph(){
 				for (int i = 0; i < _nb_dstzn; i++) {
 					for (int j = 0; j < _nb_dstzn; j++) {
 						// val_risk = get_risk_outerTrajc(_points[s][i], _points[t][j]); 
-						val_risk = eucl_distance(_points[s][i], _points[t][j]); 
+						val_risk = par_c * eucl_distance(_points[s][i], _points[t][j]); 
 
 						_riskgraph[idxmat_1 + i][idxmat_2 + j] = make_pair(true, val_risk);
 						_riskgraph[idxmat_2 + j][idxmat_1 + i] = make_pair(true, val_risk);
@@ -225,7 +227,7 @@ void DataHandler::build_riskgraph(){
 
 		for (int i = 0; i < _nb_dstzn; i++) {
 			// val_risk = get_risk_outerTrajc(_points[s][i], _depot2_loc);
-			val_risk = eucl_distance(_points[s][i], _depot2_loc);
+			val_risk = par_c * eucl_distance(_points[s][i], _depot2_loc);
 
 			_riskgraph[idxmat_2 + i][_graphsize - 1] = make_pair(true, val_risk);
 			_riskgraph[_graphsize - 1][idxmat_2 + i] = make_pair(true, val_risk);
@@ -288,7 +290,7 @@ double DataHandler::get_risk_outerTrajc(Vertex v, Vertex u) {
 		if (get<0>(result) == true){ // if current straight line intersects with region Ui, we add additional risk to this outer path
 			// cout << "intersected target " << i+1 << endl;
 			// total_risk = total_risk + get<1>(result) - get<2>(result);
-			total_risk += get<1>(result); // add penalty
+			total_risk +=  get<1>(result); // add penalty
 		}
 	}
 	// cout << total_risk << " ";

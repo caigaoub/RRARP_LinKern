@@ -562,14 +562,14 @@ void Pulse::calc_leastrisk_sink(){
 			curnode = prevnode[curnode];		
 		}
 	}
-	_rsc_lbrpath_source_sink = 0.0;
+	// _rsc_lbrpath_source_sink = 0.0;
 	// _rew_lbrpath_source_sink = 0.0;
 
-	for(int i = 0; i < (int)_lbriskpaths_sink[_source].size()-1; i++){
-		_rsc_lbrpath_source_sink += _rscgraph[_lbriskpaths_sink[_source][i]][_lbriskpaths_sink[_source][i+1]];
+	// for(int i = 0; i < (int)_lbriskpaths_sink[_source].size()-1; i++){
+		// _rsc_lbrpath_source_sink += _rscgraph[_lbriskpaths_sink[_source][i]][_lbriskpaths_sink[_source][i+1]];
 		// _rew_lbrpath_source_sink += _rscgraph[_lbriskpaths_sink[_source][i]][_lbriskpaths_sink[_source][i+1]];
-	}
-	_budget =  _rsc_lbrpath_source_sink * 2.0;
+	// }
+	// _budget =  _rsc_lbrpath_source_sink * 2.0;
 
 	if(false){
 		for(int i=0; i<_graphsize; i++){
@@ -583,7 +583,11 @@ void Pulse::calc_leastrisk_sink(){
 	}
 
 	// _demand =  (_total_reward - _rewards_lbrpaths_sink[_source]) * _demand_pct + _rewards_lbrpaths_sink[_source];
-	_demand =  (1.0 + _demand_pct) * _rewards_lbrpaths_sink[_source];
+
+	_demand =  _demand_pct * _rewards_lbrpaths_sink[_source];
+	// _demand =  _demand_pct * _total_reward/_graphsize;
+
+	// _demand =  (1.0 + _demand_pct) * _total_reward/_graphsize;
 
 	// _demand =  (_total_reward) * _demand_pct;
 	
@@ -905,22 +909,20 @@ double Pulse::calc_path_rewards(vector<int> & path){
 
 void Pulse::print_opt_sol(){
 	cout << " =====>>> total reward: " << _total_reward << ", Demand: " << _demand << ", Reward on min-risk path: " << _rewards_lbrpaths_sink[_source] << endl;
-	cout << " =====>>> Budget: " <<  _budget << endl;
+	// cout << " =====>>> Budget: " <<  _budget << endl;
 	
 	cout << " =====>>> Optimal path [";
 	double verified_obj = 0;
-	double used_resouce = 0.0;
+	// double used_resouce = 0.0;
 	for(unsigned i =0; i < _curbest_path.size(); i++){
 		cout << _curbest_path[i] << ' ';
 		if(i < _curbest_path.size()-1){
 			verified_obj += _graph[_curbest_path[i]][_curbest_path[i+1]];
-			used_resouce += _rscgraph[_curbest_path[i]][_curbest_path[i+1]];
+			// used_resouce += _rscgraph[_curbest_path[i]][_curbest_path[i+1]];
 		}
 	}
 	cout << "]\n";
-	cout << " =====>>> optimal obj value: " << _curbest_objval << ", collected reward: " << calc_path_rewards(_curbest_path);
-	cout << " used resource: " << used_resouce << endl; 
-
+	cout << " =====>>> optimal obj value: " << _curbest_objval << ", collected reward: " << calc_path_rewards(_curbest_path) << endl; 
 }
 
 
