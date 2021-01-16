@@ -1,7 +1,7 @@
 import imageio
 import os
 import fnmatch
-dirpath = "/home/cai/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/temp/"
+dirpath = "/home/latte/Dropbox/Box_Research/Github/RRARP_LinKern/dat/pyFunc/temp/"
 nb_jpg = len(fnmatch.filter(os.listdir(dirpath), '*.jpg'))
 with imageio.get_writer(dirpath+ 'lk.gif', mode='I', duration = 0.5) as writer:
     for i in range(0, nb_jpg):
